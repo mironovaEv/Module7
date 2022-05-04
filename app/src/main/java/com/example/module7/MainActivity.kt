@@ -17,20 +17,21 @@ class MainActivity : AppCompatActivity() {
         setContentView(view)
 
         val program = AlmostVirtualMachine("""
-                |var a '2';
-                |var c '4 * ( 5 + a )';
-                |var b;
-                |= b 'a + c';
-                |var i;
-                |while 'i < 7';
-                |if 'i % 2 = 0';
-                |out i;
-                |end;
+                |int n;
+                |= n '2 * 5';
+                |arr A 'n - 1';
+                |arr B '100 / n - 1';
+                |int i;
+                |while 'i < n - 1';
+                |= B[i] '8 - i';
                 |++ i;
                 |end;
-                |out a;
-                |out b;
-                |out c;""".trimMargin()
+                |= i '0';
+                |while 'i < n - 1';
+                |= A[B[i / 2]] 'i';
+                |++ i;
+                |end;
+                |out 'Array A = *{A}, n = *{n}, A[7] = *{A[6 + 1]}';""".trimMargin()
         )
         program.doLog = true
         program.execute()

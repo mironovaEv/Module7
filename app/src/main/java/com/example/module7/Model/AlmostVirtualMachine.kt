@@ -6,9 +6,9 @@ class AlmostVirtualMachine (private val codeText: String) {
 
     var output = ""
     var doLog = false
-    var globalInts: MutableMap<String, Int> = mutableMapOf()
-    var globalArrays: MutableMap<String, MutableList<Int>> = mutableMapOf()
-    var globalTypes: MutableMap<String, String> = mutableMapOf()
+    private var globalInts: MutableMap<String, Int> = mutableMapOf()
+    private var globalArrays: MutableMap<String, MutableList<Int>> = mutableMapOf()
+    private var globalTypes: MutableMap<String, String> = mutableMapOf()
     private var instrHandlers = mapOf(
         "int" to this::newInt,
         "arr" to this::newArr,
@@ -40,13 +40,13 @@ class AlmostVirtualMachine (private val codeText: String) {
     private fun instructionLog(ptr: Int, instr: Instruction) {
         if (!doLog) return
         print("$ptr-> ")
-        print("name: ${instr.name}, ")
+        print("instruction: ${instr.name}, ")
         print("variable: ${instr.ops.variable}, ")
         println("expression: ${instr.ops.expr}:")
     }
 
     fun execute() {
-        executeAt(pointer, listOf())
+        executeAt(0, listOf())
     }
 
     private fun executeAt(startIndex: Int, stopInstr: List<String>) {
@@ -71,7 +71,7 @@ class AlmostVirtualMachine (private val codeText: String) {
 
     private fun newInt(ops: Operands) {
         when {
-            Regex("[A-Za-z_]\\w*").matchEntire(ops.variable) == null -> println("WARNING: INVALID VARIABLE NAME")
+            Regex("""[A-Za-z_]\w*""").matchEntire(ops.variable) == null -> println("WARNING: INVALID VARIABLE NAME")
             ops.variable in globalTypes -> println("WARNING: VARIABLE ${ops.variable} ALREADY EXISTS")
             else -> {
                 globalTypes[ops.variable] = "int"
@@ -83,11 +83,11 @@ class AlmostVirtualMachine (private val codeText: String) {
 
     private fun newArr(ops: Operands) {
         when {
-            Regex("[A-Za-z_]\\w*").matchEntire(ops.variable) == null -> println("WARNING: INVALID VARIABLE NAME")
+            Regex("""[A-Za-z_]\w*""").matchEntire(ops.variable) == null -> println("WARNING: INVALID VARIABLE NAME")
             ops.variable in globalTypes -> println("WARNING: VARIABLE ${ops.variable} ALREADY EXISTS")
             else -> {
                 globalTypes[ops.variable] = "array"
-                globalArrays[ops.variable] = MutableList<Int>(calc.calculation(dereference(ops.expr)), { 0 })
+                globalArrays[ops.variable] = MutableList(calc.calculation(dereference(ops.expr)), { 0 })
                 globalVariablesLog("GLOBAL VARIABLES:")
             }
         }
@@ -96,10 +96,10 @@ class AlmostVirtualMachine (private val codeText: String) {
     private fun assign(ops: Operands) {
         when {
             ops.variable == "" -> println("WARNING: NO VARIABLE NAME GIVEN")
-            Regex("[A-Za-z_]\\w*").find(ops.variable)?.value !in globalTypes -> println("WARNING: VARIABLE ${ops.variable} DOES NOT EXIST")
+            Regex("""[A-Za-z_]\w*""").find(ops.variable)?.value !in globalTypes -> println("WARNING: VARIABLE ${ops.variable} DOES NOT EXIST")
             ops.expr == "" -> println("WARNING: NO EXPRESSION GIVEN")
             else -> {
-                val reg = Regex("(?<Name>[^\\[\\]]+)\\[(?<Index>.+)\\]")
+                val reg = Regex("""(?<Name>[^\[\]]+)\[(?<Index>.+)\]""")
                 val match = reg.matchEntire(ops.variable)
                 if (match == null) {
                     globalInts[ops.variable] = calc.calculation(dereference(ops.expr))
@@ -133,17 +133,13 @@ class AlmostVirtualMachine (private val codeText: String) {
     }
 
     private fun out(ops: Operands) {
-        val value: String
-        if (Regex("\\[.*\\]").find(ops.variable) == null && globalTypes[ops.variable] == "array") {
-            value = "${globalArrays[ops.variable]}"
-        } else {
-            value = "${getVal(ops.variable)}"
+        val reg = Regex("""\*\{([^\{\}]+)\}""")
+        val newOutput = reg.replace(ops.expr) {
+            match -> if (Regex("""\[.+\]""").find(match.groupValues[1]) == null && globalTypes[match.groupValues[1]] == "array") {
+                globalArrays[match.groupValues[1]].toString()
+            } else getVal(match.groupValues[1]).toString()
         }
-        output += when {
-            ops.variable == "" -> "${ops.expr}\n"
-            ops.expr ==  "" -> "${ops.variable} = $value\n"
-            else -> "${ops.variable} = $value <-- ${ops.expr}\n"
-        }
+        output += newOutput + "\n"
     }
 
     private fun conditionalOperator(ops: Operands) {
@@ -170,18 +166,18 @@ class AlmostVirtualMachine (private val codeText: String) {
     }
 
     private fun getVal(variable: String): Int? {
-        val reg = Regex("(?<Name>[^\\[\\]]+)\\[(?<Index>.+)\\]")
+        val reg = Regex("""(?<Name>[^\[\]]+)\[(?<Index>.+)\]""")
         val match = reg.matchEntire(variable)
-        if (match == null) {
-            return globalInts[variable]
+        return if (match == null) {
+            globalInts[variable]
         } else {
-            return globalArrays[match.groupValues[1]]?.get(calc.calculation(dereference(match.groupValues[2])))
+            globalArrays[match.groupValues[1]]?.get(calc.calculation(dereference(match.groupValues[2])))
         }
     }
 
     private fun dereference(expr: String): String {
         var finalExpr = expr
-        val reg = Regex("[A-Za-z_]\\w*(?:\\[.+\\])?")
+        val reg = Regex("""[A-Za-z_]\w*(?:\[.+\])?""")
         val matches = reg.findAll(finalExpr)
         for (match in matches) {
             finalExpr = finalExpr.replace(match.value, getVal(match.value).toString())
@@ -207,7 +203,7 @@ class AlmostVirtualMachine (private val codeText: String) {
     }
 
     private fun convertLine(codeLine: String): Instruction {
-        val reg = Regex("(?:^|\\n)(?<Name>[^;\\s]*)(?: (?<Variable>[A-Za-z_]\\w*(?:\\[.+\\])?))? ?(?<Expression>'.*')?;$")
+        val reg = Regex("""(?:^|\n)(?<Name>[^;\s]*)(?: (?<Variable>[A-Za-z_]\w*(?:\[.+\])?))? ?(?<Expression>'.*')?;$""")
         val match = reg.find(codeLine) ?: throw Error("Некорректная инструкция: $codeLine")
         return Instruction(match.groupValues[1], Operands(match.groupValues[2], match.groupValues[3].drop(1).dropLast(1)))
     }
