@@ -24,8 +24,9 @@ class MainActivity : AppCompatActivity() {
             findViewById<ScrollView>(R.id.scrollView).visibility = View.GONE
             outCloseBtn.visibility = View.GONE
         }
-
-        val program = AlmostVirtualMachine("""
+        binding.buttonRun.setOnClickListener {
+            val program = AlmostVirtualMachine(
+                """
                 |int n;
                 |= n '2 * 5';
                 |arr A 'n - 1';
@@ -42,13 +43,15 @@ class MainActivity : AppCompatActivity() {
                 |end;
                 |out 'Array A = *{A}, n = *{n}';
                 |out 'A[7] = *{A[6 + 1]}';""".trimMargin()
-        )
-        program.doLog = true
-        program.execute()
-        if (program.output != "") {
-            findViewById<ScrollView>(R.id.scrollView).visibility = View.VISIBLE
-            outCloseBtn.visibility = View.VISIBLE
-            findViewById<TextView>(R.id.output).text = program.output
+            )
+            program.doLog = true
+            program.execute()
+            if (program.output != "") {
+                findViewById<ScrollView>(R.id.scrollView).visibility = View.VISIBLE
+                outCloseBtn.visibility = View.VISIBLE
+                findViewById<TextView>(R.id.output).text = program.output
+            }
         }
     }
+
 }
