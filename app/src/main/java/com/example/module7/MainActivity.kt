@@ -14,13 +14,12 @@ import com.example.module7.Model.RecyclerviewAdapter
 import com.example.module7.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
-    lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityMainBinding
     lateinit var recyclerviewAdapter: RecyclerviewAdapter
 
     private val itemTouchHelper by lazy {
         val itemTouchCallback =
             object : ItemTouchHelper.SimpleCallback(UP or DOWN or START or END, RIGHT) {
-                @SuppressLint("NotifyDataSetChanged")
                 override fun onMove(
                     recyclerView: RecyclerView,
                     viewHolder: RecyclerView.ViewHolder,
@@ -36,7 +35,7 @@ class MainActivity : AppCompatActivity() {
 
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     val position = viewHolder.adapterPosition
-                    recyclerviewAdapter.onItemDismiss(position);
+                    recyclerviewAdapter.onItemDismiss(position)
 
 
                 }
@@ -66,7 +65,6 @@ class MainActivity : AppCompatActivity() {
         ItemTouchHelper(itemTouchCallback)
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -120,7 +118,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     private fun init() {
         binding.buttonAdd.setOnClickListener {
             val rnds = (0..10).random()
