@@ -1,14 +1,15 @@
 package com.example.module7.Model
 
-class AlmostVirtualMachine (private val codeText: String) {
+class AlmostVirtualMachine (private val codeText: String = "") {
     class Operands (val variable: String, val expr: String)
     class Instruction (val name: String, val ops: Operands)
 
     var output = ""
+    var input = ""
     var doLog = false
-    private var globalInts: MutableMap<String, Int> = mutableMapOf()
-    private var globalArrays: MutableMap<String, MutableList<Int>> = mutableMapOf()
-    private var globalTypes: MutableMap<String, String> = mutableMapOf()
+    var globalInts: MutableMap<String, Int> = mutableMapOf()
+    var globalArrays: MutableMap<String, MutableList<Int>> = mutableMapOf()
+    var globalTypes: MutableMap<String, String> = mutableMapOf()
     private var instrHandlers = mapOf(
         "int" to this::newInt,
         "arr" to this::newArr,
@@ -18,12 +19,24 @@ class AlmostVirtualMachine (private val codeText: String) {
         "++" to this::increment,
         "--" to this::decrement,
         "out" to this::out,
+        "in" to this::input,
         "if" to this::conditionalOperator,
         "while" to this::whileLoop
     )
     private var pointer = 0
+    fun getPointer(): Int {
+        return pointer
+    }
+    private var halt = false
     private val calc = Calculations()
     val instructionsList = convert()
+
+    fun findInstruction(instrName: String): Int? {
+        for (i in instructionsList.indices) {
+            if (instrName == instructionsList[i].name) return i
+        }
+        return null
+    }
 
     fun globalVariablesLog(message: String) {
         if (!doLog) return
@@ -44,14 +57,10 @@ class AlmostVirtualMachine (private val codeText: String) {
         print("variable: ${instr.ops.variable}, ")
         println("expression: ${instr.ops.expr}:")
     }
-
-    fun execute() {
-        executeAt(0, listOf())
-    }
-
-    private fun executeAt(startIndex: Int, stopInstr: List<String>) {
+    
+    fun execute(startIndex: Int = pointer, stopInstr: List<String> = listOf()) {
         pointer = startIndex
-        while (pointer < instructionsList.size) {
+        while (pointer < instructionsList.size && !halt) {
             val instr = instructionsList[pointer]
             instructionLog(pointer, instr)
             if (instr.name in instrHandlers) {
@@ -62,9 +71,14 @@ class AlmostVirtualMachine (private val codeText: String) {
         }
     }
 
-    private fun skipTo(instrNames: List<String>) {
+    private fun skipBlock(stopInstr: List<String> = listOf("end")) {
+        var depth = 0
         while (pointer < instructionsList.size) {
-            if (instructionsList[pointer].name in instrNames) break
+            if (instructionsList[pointer].name in stopInstr) {
+                if (depth <= 1) break
+                else depth--
+            }
+            if (instructionsList[pointer].name in listOf("while", "if")) depth++
             pointer++
         }
     }
@@ -145,14 +159,14 @@ class AlmostVirtualMachine (private val codeText: String) {
     private fun conditionalOperator(ops: Operands) {
         if (ops.variable != "") println("WARNING: UNNEEDED VARIABLE NAME")
         if (calculateLogical(ops.expr)) {
-            executeAt(pointer + 1, listOf("end", "else"))
+            execute(pointer + 1, listOf("end", "else"))
             if (pointer < instructionsList.size && instructionsList[pointer].name == "else") {
-                skipTo(listOf("end"))
+                skipBlock()
             }
         } else {
-            skipTo(listOf("end", "else"))
+            skipBlock(listOf("end", "else"))
             if (pointer < instructionsList.size && instructionsList[pointer].name == "else") {
-                executeAt(pointer + 1, listOf("end"))
+                execute(pointer + 1, listOf("end"))
             }
         }
     }
@@ -161,7 +175,22 @@ class AlmostVirtualMachine (private val codeText: String) {
         if (ops.variable != "") println("WARNING: UNNEEDED VARIABLE NAME")
         val returnPoint = pointer
         while (calculateLogical(ops.expr)) {
-            executeAt(returnPoint + 1, listOf("end"))
+            execute(returnPoint + 1, listOf("end"))
+            if (halt) {
+                return
+            }
+        }
+        skipBlock()
+    }
+
+    private fun input(ops: Operands) {
+        val match = Regex("""\s*\b(\d+)\b""").find(input)
+        if (match != null) {
+            assign(Operands(ops.variable, match.groupValues[1]))
+            input = input.removePrefix(match.value)
+        } else {
+            halt = true
+            throw Error("Incorrect input")
         }
     }
 

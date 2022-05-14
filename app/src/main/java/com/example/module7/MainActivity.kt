@@ -1,9 +1,7 @@
 package com.example.module7
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
-import android.widget.ImageButton
 import android.widget.ScrollView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -69,6 +67,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
+        val buttonRun = binding.buttonRun
+        val consoleOpen = binding.consoleOpen
+        val console = binding.console
+        val output = binding.Output
+        val input = binding.Input
+        val buttonResume = binding.buttonResume
+        val buttonRestart = binding.buttonRestart
+        val consoleClose = binding.consoleClose
         setContentView(view)
 
         init()
@@ -76,45 +82,104 @@ class MainActivity : AppCompatActivity() {
         recyclerviewAdapter = RecyclerviewAdapter()
         binding.rcView.adapter = recyclerviewAdapter
 
-        val outCloseBtn = findViewById<ImageButton>(R.id.imageButton)
-        outCloseBtn.setOnClickListener {
-            findViewById<ScrollView>(R.id.scrollView).visibility = View.GONE
-            outCloseBtn.visibility = View.GONE
+        val code = """
+                |int n;
+                |int m;
+                |in n;
+                |in m;
+                |arr A 'n * m';
+                |int i;
+                |int j;
+                |while 'i < n';
+                    |while 'j < m';
+                        |in A[i * m + j];
+                        |++ j;
+                    |end;
+                    |++ i;
+                    |= j '0';
+                |end;
+                |arr B 'm';
+                |= i '0';
+                |while 'i < n';
+                    |while 'j < m';
+                        |= B[j] 'A[i * m + j]';
+                        |++ j;
+                    |end;
+                    |out '*{B}';
+                    |++ i;
+                    |= j '0';
+                |end;""".trimMargin()
+
+        var expectingInput: Boolean? = null
+
+        fun updateConsole(program: AlmostVirtualMachine?) {
+            console.visibility = View.VISIBLE
+            consoleClose.visibility = View.VISIBLE
+            when (expectingInput) {
+                null -> {
+                    buttonRestart.visibility = View.GONE
+                    buttonResume.visibility = View.GONE
+                    input.visibility = View.GONE
+                }
+                true -> {
+                    buttonRestart.visibility = View.GONE
+                    buttonResume.visibility = View.VISIBLE
+                    input.visibility = View.VISIBLE
+                    input.requestFocus()
+                }
+                else -> {
+                    buttonRestart.visibility = View.VISIBLE
+                    buttonResume.visibility = View.GONE
+                    input.visibility = View.GONE
+                    output.text = program?.output ?: output.text
+                }
+            }
         }
 
-        binding.buttonRun.setOnClickListener {
-            val program = AlmostVirtualMachine(
-                """
-                |int n;
-                |= n '2 * 5';
-                |arr A 'n - 1';
-                |arr B '100 / n - 1';
-                |int i;
-                |while 'i < n - 1';
-                |= B[i] '8 - i';
-                |++ i;
-                |end;
-                |= i '0';
-                |while 'i < n - 1';
-                |= A[B[i / 2]] 'i';
-                |++ i;
-                |end;
-                |out 'Array A = *{A}, n = *{n}';
-                |out 'A[7] = *{A[6 + 1]}';""".trimMargin()
-            )
+        fun run() {
+            val program = AlmostVirtualMachine(code)
             program.doLog = true
-            program.execute()
-            if (program.output != "") {
-                findViewById<ScrollView>(R.id.scrollView).visibility = View.VISIBLE
-                outCloseBtn.visibility = View.VISIBLE
-                //findViewById<TextView>(R.id.output).text = program.output
-                var str = ""
-                for (i in 0 until recyclerviewAdapter.arrayItems.size) {
-                    str += recyclerviewAdapter.arrayItems[i].number
-                }
+            output.text = null
 
-                binding.output.text = str
+            buttonResume.setOnClickListener {
+                program.output = input.text.toString() + "\n"
+                program.input = input.text.toString()
+                try {
+                    program.execute()
+                } catch (e: Error) {
+                    program.output += e.message
+                }
+                expectingInput = false
+                updateConsole(program)
             }
+
+            if (program.findInstruction("in") == null) {
+                try {
+                    program.execute()
+                } catch (e: Error) {
+                    program.output += e.message
+                }
+                expectingInput = false
+            } else {
+                expectingInput = true
+            }
+            updateConsole(program)
+        }
+        buttonRun.setOnClickListener {
+            input.text = null
+            run()
+        }
+        buttonRestart.setOnClickListener{
+            run()
+        }
+        consoleClose.setOnClickListener {
+            console.visibility = View.GONE
+            consoleClose.visibility = View.GONE
+            buttonResume.visibility = View.GONE
+            buttonRestart.visibility = View.GONE
+        }
+        consoleOpen.setOnClickListener {
+            updateConsole(null)
         }
     }
 
