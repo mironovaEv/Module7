@@ -7,4 +7,18 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="label_back">#FFFFFF</color>
+    <color name="label_color">#000000</color>
+    <color name="var_back">#00CF00</color>
+    <color name="assignment_back">#3F51B5</color>
+    <color name="in_back">#FF9800</color>
+    <color name="out_back">#F44336</color>
+    <color name="if_else_back">#673AB7</color>
+    <color name="begin_end_back">#8BC34A</color>
+    <color name="while_back">#E91E63</color>
+    <color name="array_back">#009688</color>
+    <color name="increment_back">#00BCD4</color>
+    <color name="decrement_back">#FFEB3B</color>
+    <color name="background">#DBDBDB</color>
+
 </resources>

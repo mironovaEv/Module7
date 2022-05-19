@@ -1,5 +1,20 @@
 package com.example.module7.Model
 
-data class Block(val number : Int){
 
+class Block(val type : String, val comparison : String){
+    var name: String? = null
+    var value: String? = null
+    fun getNameEditText(): String? {
+        return name
+    }
+    fun getValueEditText(): String? {
+        return value
+    }
+
+    fun setNameEditText(editTextValue: String) {
+        this.name = editTextValue
+    }
+    fun setValueEditText(editTextValue: String) {
+        this.value = editTextValue
+    }
 }

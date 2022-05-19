@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="creating_variable" type="id" />
+    <item name="assignment" type="id" />
+    <item name="creating_in" type="id" />
+    <item name="creating_out" type="id"/>
+    <item name="creating_if" type="id"/>
+    <item name="creating_while" type="id"/>
+    <item name="creating_array" type="id"/>
+    <item name="creating_increment" type="id"/>
+    <item name="creating_decrement" type="id"/>
+
+
+
+</resources>

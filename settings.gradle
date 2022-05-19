@@ -1,8 +1,12 @@
+import org.gradle.api.initialization.resolve.RepositoriesMode
+
 pluginManagement {
     repositories {
         gradlePluginPortal()
         google()
         mavenCentral()
+
+
     }
 }
 dependencyResolutionManagement {
@@ -10,7 +14,10 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+
+
     }
 }
+
 rootProject.name = "Module7"
 include ':app'
