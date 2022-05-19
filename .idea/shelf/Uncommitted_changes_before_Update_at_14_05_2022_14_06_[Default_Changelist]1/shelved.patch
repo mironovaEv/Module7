@@ -1,0 +1,124 @@
+Index: app/src/main/java/com/example/module7/Model/AlmostVirtualMachine.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.module7.Model\r\n\r\nclass AlmostVirtualMachine (private val codeText: String) {\r\n    class Operands (val variable: String, val expr: String)\r\n    class Instruction (val name: String, val ops: Operands)\r\n\r\n    var output = \"\"\r\n    var doLog = false\r\n    private var globalInts: MutableMap<String, Int> = mutableMapOf()\r\n    private var globalArrays: MutableMap<String, MutableList<Int>> = mutableMapOf()\r\n    private var globalTypes: MutableMap<String, String> = mutableMapOf()\r\n    private var instrHandlers = mapOf(\r\n        \"int\" to this::newInt,\r\n        \"arr\" to this::newArr,\r\n        \"=\" to this::assign,\r\n        \"+=\" to this::increase,\r\n        \"-=\" to this::decrease,\r\n        \"++\" to this::increment,\r\n        \"--\" to this::decrement,\r\n        \"out\" to this::out,\r\n        \"if\" to this::conditionalOperator,\r\n        \"while\" to this::whileLoop\r\n    )\r\n    private var pointer = 0\r\n    private val calc = Calculations()\r\n    val instructionsList = convert()\r\n\r\n    fun globalVariablesLog(message: String) {\r\n        if (!doLog) return\r\n        println(message)\r\n        for (variable in globalInts) {\r\n            print(\"${variable.key} = ${variable.value}; \")\r\n        }\r\n        for (variable in globalArrays) {\r\n            print(\"${variable.key} = ${variable.value}; \")\r\n        }\r\n        println()\r\n    }\r\n\r\n    private fun instructionLog(ptr: Int, instr: Instruction) {\r\n        if (!doLog) return\r\n        print(\"$ptr-> \")\r\n        print(\"instruction: ${instr.name}, \")\r\n        print(\"variable: ${instr.ops.variable}, \")\r\n        println(\"expression: ${instr.ops.expr}:\")\r\n    }\r\n\r\n    fun execute() {\r\n        executeAt(0, listOf())\r\n    }\r\n\r\n    private fun executeAt(startIndex: Int, stopInstr: List<String>) {\r\n        pointer = startIndex\r\n        while (pointer < instructionsList.size) {\r\n            val instr = instructionsList[pointer]\r\n            instructionLog(pointer, instr)\r\n            if (instr.name in instrHandlers) {\r\n                instrHandlers[instr.name]?.invoke(instr.ops)\r\n            }\r\n            if (instr.name in stopInstr) break\r\n            pointer++\r\n        }\r\n    }\r\n\r\n    private fun skipTo(instrNames: List<String>) {\r\n        while (pointer < instructionsList.size) {\r\n            if (instructionsList[pointer].name in instrNames) break\r\n            pointer++\r\n        }\r\n    }\r\n\r\n    private fun newInt(ops: Operands) {\r\n        when {\r\n            Regex(\"\"\"[A-Za-z_]\\w*\"\"\").matchEntire(ops.variable) == null -> println(\"WARNING: INVALID VARIABLE NAME\")\r\n            ops.variable in globalTypes -> println(\"WARNING: VARIABLE ${ops.variable} ALREADY EXISTS\")\r\n            else -> {\r\n                globalTypes[ops.variable] = \"int\"\r\n                globalInts[ops.variable] = 0\r\n                globalVariablesLog(\"GLOBAL VARIABLES:\")\r\n            }\r\n        }\r\n    }\r\n\r\n    private fun newArr(ops: Operands) {\r\n        when {\r\n            Regex(\"\"\"[A-Za-z_]\\w*\"\"\").matchEntire(ops.variable) == null -> println(\"WARNING: INVALID VARIABLE NAME\")\r\n            ops.variable in globalTypes -> println(\"WARNING: VARIABLE ${ops.variable} ALREADY EXISTS\")\r\n            else -> {\r\n                globalTypes[ops.variable] = \"array\"\r\n                globalArrays[ops.variable] = MutableList(calc.calculation(dereference(ops.expr)), { 0 })\r\n                globalVariablesLog(\"GLOBAL VARIABLES:\")\r\n            }\r\n        }\r\n    }\r\n\r\n    private fun assign(ops: Operands) {\r\n        when {\r\n            ops.variable == \"\" -> println(\"WARNING: NO VARIABLE NAME GIVEN\")\r\n            Regex(\"\"\"[A-Za-z_]\\w*\"\"\").find(ops.variable)?.value !in globalTypes -> println(\"WARNING: VARIABLE ${ops.variable} DOES NOT EXIST\")\r\n            ops.expr == \"\" -> println(\"WARNING: NO EXPRESSION GIVEN\")\r\n            else -> {\r\n                val reg = Regex(\"\"\"(?<Name>[^\\[\\]]+)\\[(?<Index>.+)\\]\"\"\")\r\n                val match = reg.matchEntire(ops.variable)\r\n                if (match == null) {\r\n                    globalInts[ops.variable] = calc.calculation(dereference(ops.expr))\r\n                } else {\r\n                    globalArrays[match.groupValues[1]]?.set(\r\n                        calc.calculation(dereference(match.groupValues[2])),\r\n                        calc.calculation(dereference(ops.expr))\r\n                    )\r\n                }\r\n                globalVariablesLog(\"GLOBAL VARIABLES:\")\r\n            }\r\n        }\r\n    }\r\n\r\n    private fun increase(ops: Operands) {\r\n        assign(Operands(ops.variable, \"${ops.variable} + ${ops.expr}\"))\r\n    }\r\n\r\n    private fun decrease(ops: Operands) {\r\n        assign(Operands(ops.variable, \"${ops.variable} - ${ops.expr}\"))\r\n    }\r\n\r\n    private fun increment(ops: Operands) {\r\n        if (ops.expr != \"\") println(\"WARNING: UNNEEDED EXPRESSION\")\r\n        increase(Operands(ops.variable, \"1\"))\r\n    }\r\n\r\n    private fun decrement(ops: Operands) {\r\n        if (ops.expr != \"\") println(\"WARNING: UNNEEDED EXPRESSION\")\r\n        decrease(Operands(ops.variable, \"1\"))\r\n    }\r\n\r\n    private fun out(ops: Operands) {\r\n        val reg = Regex(\"\"\"\\*\\{([^\\{\\}]+)\\}\"\"\")\r\n        val newOutput = reg.replace(ops.expr) {\r\n            match -> if (Regex(\"\"\"\\[.+\\]\"\"\").find(match.groupValues[1]) == null && globalTypes[match.groupValues[1]] == \"array\") {\r\n                globalArrays[match.groupValues[1]].toString()\r\n            } else getVal(match.groupValues[1]).toString()\r\n        }\r\n        output += newOutput + \"\\n\"\r\n    }\r\n\r\n    private fun conditionalOperator(ops: Operands) {\r\n        if (ops.variable != \"\") println(\"WARNING: UNNEEDED VARIABLE NAME\")\r\n        if (calculateLogical(ops.expr)) {\r\n            executeAt(pointer + 1, listOf(\"end\", \"else\"))\r\n            if (pointer < instructionsList.size && instructionsList[pointer].name == \"else\") {\r\n                skipTo(listOf(\"end\"))\r\n            }\r\n        } else {\r\n            skipTo(listOf(\"end\", \"else\"))\r\n            if (pointer < instructionsList.size && instructionsList[pointer].name == \"else\") {\r\n                executeAt(pointer + 1, listOf(\"end\"))\r\n            }\r\n        }\r\n    }\r\n\r\n    private fun whileLoop(ops: Operands) {\r\n        if (ops.variable != \"\") println(\"WARNING: UNNEEDED VARIABLE NAME\")\r\n        val returnPoint = pointer\r\n        while (calculateLogical(ops.expr)) {\r\n            executeAt(returnPoint + 1, listOf(\"end\"))\r\n        }\r\n    }\r\n\r\n    private fun getVal(variable: String): Int? {\r\n        val reg = Regex(\"\"\"(?<Name>[^\\[\\]]+)\\[(?<Index>.+)\\]\"\"\")\r\n        val match = reg.matchEntire(variable)\r\n        return if (match == null) {\r\n            globalInts[variable]\r\n        } else {\r\n            globalArrays[match.groupValues[1]]?.get(calc.calculation(dereference(match.groupValues[2])))\r\n        }\r\n    }\r\n\r\n    private fun dereference(expr: String): String {\r\n        var finalExpr = expr\r\n        val reg = Regex(\"\"\"[A-Za-z_]\\w*(?:\\[.+\\])?\"\"\")\r\n        val matches = reg.findAll(finalExpr)\r\n        for (match in matches) {\r\n            finalExpr = finalExpr.replace(match.value, getVal(match.value).toString())\r\n        }\r\n        return finalExpr\r\n    }\r\n\r\n    private fun calculateLogical(expr: String): Boolean {\r\n        val reg = Regex(\"^(?<operand1>[^<>=!]+) (?<operator>>|<|>=|<=|=|!=) (?<operand2>[^<>=!]+)\\$\")\r\n        val match = reg.find(expr) ?: throw Error (\"Некорректное логическое выражение: $expr\")\r\n        val a = calc.calculation(dereference(match.groupValues[1]))\r\n        val op = match.groupValues[2]\r\n        val b = calc.calculation(dereference(match.groupValues[3]))\r\n        return when (op) {\r\n            \">\" -> a > b\r\n            \"<\" -> a < b\r\n            \">=\" -> a >= b\r\n            \"<=\" -> a <= b\r\n            \"=\" -> a == b\r\n            \"!=\" -> a != b\r\n            else -> false\r\n        }\r\n    }\r\n\r\n    private fun convertLine(codeLine: String): Instruction {\r\n        val reg = Regex(\"\"\"(?:^|\\n)(?<Name>[^;\\s]*)(?: (?<Variable>[A-Za-z_]\\w*(?:\\[.+\\])?))? ?(?<Expression>'.*')?;$\"\"\")\r\n        val match = reg.find(codeLine) ?: throw Error(\"Некорректная инструкция: $codeLine\")\r\n        return Instruction(match.groupValues[1], Operands(match.groupValues[2], match.groupValues[3].drop(1).dropLast(1)))\r\n    }\r\n\r\n    private fun convert(): List<Instruction> {\r\n        val instructionsList: MutableList<Instruction> = mutableListOf()\r\n        val reg = Regex(\"(?:^|\\\\n).*;\")\r\n        val matches = reg.findAll(codeText)\r\n        for (match in matches) {\r\n            instructionsList += convertLine(match.value)\r\n        }\r\n        return instructionsList\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/module7/Model/AlmostVirtualMachine.kt b/app/src/main/java/com/example/module7/Model/AlmostVirtualMachine.kt
+--- a/app/src/main/java/com/example/module7/Model/AlmostVirtualMachine.kt	
++++ b/app/src/main/java/com/example/module7/Model/AlmostVirtualMachine.kt	
+@@ -1,14 +1,15 @@
+ package com.example.module7.Model
+ 
+-class AlmostVirtualMachine (private val codeText: String) {
++class AlmostVirtualMachine (private val codeText: String = "") {
+     class Operands (val variable: String, val expr: String)
+     class Instruction (val name: String, val ops: Operands)
+ 
+     var output = ""
++    var input = ""
+     var doLog = false
+-    private var globalInts: MutableMap<String, Int> = mutableMapOf()
+-    private var globalArrays: MutableMap<String, MutableList<Int>> = mutableMapOf()
+-    private var globalTypes: MutableMap<String, String> = mutableMapOf()
++    var globalInts: MutableMap<String, Int> = mutableMapOf()
++    var globalArrays: MutableMap<String, MutableList<Int>> = mutableMapOf()
++    var globalTypes: MutableMap<String, String> = mutableMapOf()
+     private var instrHandlers = mapOf(
+         "int" to this::newInt,
+         "arr" to this::newArr,
+@@ -18,10 +19,15 @@
+         "++" to this::increment,
+         "--" to this::decrement,
+         "out" to this::out,
++        "in" to this::input,
+         "if" to this::conditionalOperator,
+         "while" to this::whileLoop
+     )
+     private var pointer = 0
++    fun getPointer(): Int {
++        return pointer
++    }
++    private var halt = false
+     private val calc = Calculations()
+     val instructionsList = convert()
+ 
+@@ -44,14 +50,10 @@
+         print("variable: ${instr.ops.variable}, ")
+         println("expression: ${instr.ops.expr}:")
+     }
+-
+-    fun execute() {
+-        executeAt(0, listOf())
+-    }
+-
+-    private fun executeAt(startIndex: Int, stopInstr: List<String>) {
++    
++    fun execute(startIndex: Int = pointer, stopInstr: List<String> = listOf()) {
+         pointer = startIndex
+-        while (pointer < instructionsList.size) {
++        while (pointer < instructionsList.size && !halt) {
+             val instr = instructionsList[pointer]
+             instructionLog(pointer, instr)
+             if (instr.name in instrHandlers) {
+@@ -62,9 +64,14 @@
+         }
+     }
+ 
+-    private fun skipTo(instrNames: List<String>) {
++    private fun skipBlock(stopInstr: List<String> = listOf("end")) {
++        var depth = 0
+         while (pointer < instructionsList.size) {
+-            if (instructionsList[pointer].name in instrNames) break
++            if (instructionsList[pointer].name in stopInstr) {
++                if (depth <= 1) break
++                else depth--
++            }
++            if (instructionsList[pointer].name in listOf("while", "if")) depth++
+             pointer++
+         }
+     }
+@@ -145,14 +152,14 @@
+     private fun conditionalOperator(ops: Operands) {
+         if (ops.variable != "") println("WARNING: UNNEEDED VARIABLE NAME")
+         if (calculateLogical(ops.expr)) {
+-            executeAt(pointer + 1, listOf("end", "else"))
++            execute(pointer + 1, listOf("end", "else"))
+             if (pointer < instructionsList.size && instructionsList[pointer].name == "else") {
+-                skipTo(listOf("end"))
++                skipBlock()
+             }
+         } else {
+-            skipTo(listOf("end", "else"))
++            skipBlock(listOf("end", "else"))
+             if (pointer < instructionsList.size && instructionsList[pointer].name == "else") {
+-                executeAt(pointer + 1, listOf("end"))
++                execute(pointer + 1, listOf("end"))
+             }
+         }
+     }
+@@ -161,7 +168,22 @@
+         if (ops.variable != "") println("WARNING: UNNEEDED VARIABLE NAME")
+         val returnPoint = pointer
+         while (calculateLogical(ops.expr)) {
+-            executeAt(returnPoint + 1, listOf("end"))
++            execute(returnPoint + 1, listOf("end"))
++            if (halt) {
++                return
++            }
++        }
++        skipBlock()
++    }
++
++    private fun input(ops: Operands) {
++        val match = Regex("""\s*\b(\d+)\b""").find(input)
++        if (match != null) {
++            assign(Operands(ops.variable, match.groupValues[1]))
++            input = input.removePrefix(match.value)
++        } else {
++            halt = true
++            throw Error("Incorrect input")
+         }
+     }
+ 

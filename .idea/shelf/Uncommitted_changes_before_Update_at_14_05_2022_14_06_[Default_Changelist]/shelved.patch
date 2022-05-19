@@ -1,0 +1,290 @@
+Index: app/src/main/java/com/example/module7/MainActivity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.module7\r\n\r\nimport android.os.Bundle\r\nimport android.view.View\r\nimport android.widget.ImageButton\r\nimport android.widget.ScrollView\r\nimport android.widget.TextView\r\nimport androidx.appcompat.app.AppCompatActivity\r\nimport com.example.module7.Model.AlmostVirtualMachine\r\nimport com.example.module7.databinding.ActivityMainBinding\r\nimport android.view.View.OnClickListener\r\n\r\nclass MainActivity : AppCompatActivity() {\r\n    private lateinit var binding: ActivityMainBinding\r\n\r\n    override fun onCreate(savedInstanceState: Bundle?) {\r\n        super.onCreate(savedInstanceState)\r\n        binding = ActivityMainBinding.inflate(layoutInflater)\r\n        val view = binding.root\r\n        setContentView(view)\r\n\r\n        val outCloseBtn = findViewById<ImageButton>(R.id.imageButton)\r\n        outCloseBtn.setOnClickListener {\r\n            findViewById<ScrollView>(R.id.scrollView).visibility = View.GONE\r\n            outCloseBtn.visibility = View.GONE\r\n        }\r\n        binding.buttonRun.setOnClickListener {\r\n            val program = AlmostVirtualMachine(\r\n                \"\"\"\r\n                |int n;\r\n                |= n '2 * 5';\r\n                |arr A 'n - 1';\r\n                |arr B '100 / n - 1';\r\n                |int i;\r\n                |while 'i < n - 1';\r\n                |= B[i] '8 - i';\r\n                |++ i;\r\n                |end;\r\n                |= i '0';\r\n                |while 'i < n - 1';\r\n                |= A[B[i / 2]] 'i';\r\n                |++ i;\r\n                |end;\r\n                |out 'Array A = *{A}, n = *{n}';\r\n                |out 'A[7] = *{A[6 + 1]}';\"\"\".trimMargin()\r\n            )\r\n            program.doLog = true\r\n            program.execute()\r\n            if (program.output != \"\") {\r\n                findViewById<ScrollView>(R.id.scrollView).visibility = View.VISIBLE\r\n                outCloseBtn.visibility = View.VISIBLE\r\n                findViewById<TextView>(R.id.output).text = program.output\r\n            }\r\n        }\r\n    }\r\n\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/module7/MainActivity.kt b/app/src/main/java/com/example/module7/MainActivity.kt
+--- a/app/src/main/java/com/example/module7/MainActivity.kt	
++++ b/app/src/main/java/com/example/module7/MainActivity.kt	
+@@ -2,56 +2,65 @@
+ 
+ import android.os.Bundle
+ import android.view.View
+-import android.widget.ImageButton
+-import android.widget.ScrollView
+-import android.widget.TextView
+ import androidx.appcompat.app.AppCompatActivity
+ import com.example.module7.Model.AlmostVirtualMachine
+ import com.example.module7.databinding.ActivityMainBinding
+-import android.view.View.OnClickListener
+ 
+ class MainActivity : AppCompatActivity() {
+     private lateinit var binding: ActivityMainBinding
+ 
+     override fun onCreate(savedInstanceState: Bundle?) {
+         super.onCreate(savedInstanceState)
++
+         binding = ActivityMainBinding.inflate(layoutInflater)
+         val view = binding.root
++        val buttonRun = binding.buttonRun
++        val consoleCloseBtn = binding.closeConsole
++        val resumeButton = binding.resumeButton
++        val restartButton = binding.restartButton
++        val console = binding.console
++        val input = binding.Input
++        val output = binding.Output
+         setContentView(view)
+ 
+-        val outCloseBtn = findViewById<ImageButton>(R.id.imageButton)
+-        outCloseBtn.setOnClickListener {
+-            findViewById<ScrollView>(R.id.scrollView).visibility = View.GONE
+-            outCloseBtn.visibility = View.GONE
++        buttonRun.setOnClickListener {
++            console.visibility = View.VISIBLE
++            consoleCloseBtn.visibility = View.VISIBLE
++            resumeButton.visibility = View.VISIBLE
++            input.visibility = View.VISIBLE
++            input.requestFocus()
++            output.text = null
+         }
+-        binding.buttonRun.setOnClickListener {
+-            val program = AlmostVirtualMachine(
+-                """
+-                |int n;
+-                |= n '2 * 5';
+-                |arr A 'n - 1';
+-                |arr B '100 / n - 1';
+-                |int i;
+-                |while 'i < n - 1';
+-                |= B[i] '8 - i';
+-                |++ i;
+-                |end;
+-                |= i '0';
+-                |while 'i < n - 1';
+-                |= A[B[i / 2]] 'i';
+-                |++ i;
+-                |end;
+-                |out 'Array A = *{A}, n = *{n}';
+-                |out 'A[7] = *{A[6 + 1]}';""".trimMargin()
+-            )
++
++        restartButton.setOnClickListener {
++            resumeButton.visibility = View.VISIBLE
++            restartButton.visibility = View.GONE
++            input.visibility = View.VISIBLE
++            input.requestFocus()
++            output.text = null
++        }
++
++        resumeButton.setOnClickListener {
++            resumeButton.visibility = View.GONE
++            input.visibility = View.GONE
++            restartButton.visibility = View.VISIBLE
++            val program = AlmostVirtualMachine()
+             program.doLog = true
+-            program.execute()
+-            if (program.output != "") {
+-                findViewById<ScrollView>(R.id.scrollView).visibility = View.VISIBLE
+-                outCloseBtn.visibility = View.VISIBLE
+-                findViewById<TextView>(R.id.output).text = program.output
++            program.input = input.text.toString()
++            program.output = input.text.toString() + "\n"
++            try {
++                program.execute()
++            } catch (e: Error) {
++                program.output = program.output + e.message
+             }
++            output.text = program.output
+         }
++
++        consoleCloseBtn.setOnClickListener {
++            console.visibility = View.GONE
++            consoleCloseBtn.visibility = View.GONE
++            resumeButton.visibility = View.GONE
++            restartButton.visibility = View.GONE
++        }
+     }
+-
+ }
+\ No newline at end of file
+Index: app/src/main/res/layout/activity_main.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<androidx.constraintlayout.widget.ConstraintLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\r\n    xmlns:tools=\"http://schemas.android.com/tools\"\r\n    android:layout_width=\"match_parent\"\r\n    android:layout_height=\"match_parent\"\r\n    tools:context=\".MainActivity\">\r\n\r\n    <ImageView\r\n        android:id=\"@+id/buttonRun\"\r\n        android:layout_width=\"102dp\"\r\n        android:layout_height=\"101dp\"\r\n        android:layout_marginTop=\"16dp\"\r\n        android:layout_marginEnd=\"16dp\"\r\n        app:layout_constraintEnd_toEndOf=\"parent\"\r\n        app:layout_constraintTop_toTopOf=\"parent\"\r\n        app:srcCompat=\"@drawable/run\" />\r\n\r\n    <ImageButton\r\n        android:id=\"@+id/imageButton\"\r\n        android:layout_width=\"94dp\"\r\n        android:layout_height=\"90dp\"\r\n        android:backgroundTint=\"#FF5722\"\r\n        android:visibility=\"gone\"\r\n        app:layout_constraintBottom_toTopOf=\"@+id/scrollView\"\r\n        app:layout_constraintEnd_toEndOf=\"parent\"\r\n        app:srcCompat=\"@android:drawable/ic_menu_revert\"\r\n        tools:ignore=\"SpeakableTextPresentCheck\"\r\n        tools:visibility=\"gone\" />\r\n\r\n    <ScrollView\r\n        android:id=\"@+id/scrollView\"\r\n        android:layout_width=\"0dp\"\r\n        android:layout_height=\"500dp\"\r\n        android:background=\"#000000\"\r\n        android:padding=\"10dp\"\r\n        android:visibility=\"gone\"\r\n        app:layout_constraintBottom_toBottomOf=\"parent\"\r\n        app:layout_constraintEnd_toEndOf=\"parent\"\r\n        app:layout_constraintHorizontal_bias=\"1.0\"\r\n        app:layout_constraintStart_toStartOf=\"parent\"\r\n        tools:visibility=\"gone\">\r\n\r\n        <LinearLayout\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"80dp\"\r\n            android:orientation=\"vertical\">\r\n\r\n            <TextView\r\n                android:id=\"@+id/output\"\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:layout_marginBottom=\"528dp\"\r\n                android:background=\"#00FFFFFF\"\r\n                android:fontFamily=\"@font/courier_prime\"\r\n                android:textColor=\"#FFFFFF\"\r\n                android:textSize=\"24sp\"\r\n                tools:ignore=\"TextContrastCheck\" />\r\n        </LinearLayout>\r\n    </ScrollView>\r\n\r\n</androidx.constraintlayout.widget.ConstraintLayout>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/activity_main.xml b/app/src/main/res/layout/activity_main.xml
+--- a/app/src/main/res/layout/activity_main.xml	
++++ b/app/src/main/res/layout/activity_main.xml	
+@@ -8,28 +8,71 @@
+ 
+     <ImageView
+         android:id="@+id/buttonRun"
+-        android:layout_width="102dp"
+-        android:layout_height="101dp"
+-        android:layout_marginTop="16dp"
+-        android:layout_marginEnd="16dp"
++        android:layout_width="0dp"
++        android:layout_height="0dp"
++        app:layout_constraintBottom_toBottomOf="parent"
++        app:layout_constraintEnd_toStartOf="@+id/guideline4"
++        app:layout_constraintStart_toStartOf="@+id/guideline3"
++        app:layout_constraintTop_toTopOf="@+id/guideline2"
++        app:srcCompat="@drawable/run"
++        tools:ignore="ImageContrastCheck" />
++
++    <ScrollView
++        android:id="@+id/scrollView2"
++        android:layout_width="0dp"
++        android:layout_height="0dp"
++        android:padding="10dp"
++        android:scrollbars="horizontal|vertical"
++        app:layout_constraintBottom_toTopOf="@+id/guideline2"
+         app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintStart_toStartOf="parent"
+         app:layout_constraintTop_toTopOf="parent"
+-        app:srcCompat="@drawable/run" />
++        tools:ignore="SpeakableTextPresentCheck">
++
++        <LinearLayout
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:orientation="vertical" />
++    </ScrollView>
+ 
+     <ImageButton
+-        android:id="@+id/imageButton"
++        android:id="@+id/closeConsole"
+         android:layout_width="94dp"
+         android:layout_height="90dp"
+         android:backgroundTint="#FF5722"
+         android:visibility="gone"
+-        app:layout_constraintBottom_toTopOf="@+id/scrollView"
++        app:layout_constraintBottom_toTopOf="@+id/console"
+         app:layout_constraintEnd_toEndOf="parent"
+         app:srcCompat="@android:drawable/ic_menu_revert"
++        tools:ignore="SpeakableTextPresentCheck"
++        tools:visibility="visible" />
++
++    <ImageButton
++        android:id="@+id/resumeButton"
++        android:layout_width="94dp"
++        android:layout_height="90dp"
++        android:backgroundTint="#52FF22"
++        android:visibility="gone"
++        app:layout_constraintBottom_toTopOf="@+id/console"
++        app:layout_constraintEnd_toStartOf="@+id/closeConsole"
++        app:srcCompat="@android:drawable/ic_menu_send"
++        tools:ignore="SpeakableTextPresentCheck"
++        tools:visibility="visible" />
++
++    <ImageButton
++        android:id="@+id/restartButton"
++        android:layout_width="94dp"
++        android:layout_height="90dp"
++        android:backgroundTint="#52FF22"
++        android:visibility="gone"
++        app:layout_constraintBottom_toTopOf="@+id/console"
++        app:layout_constraintEnd_toStartOf="@+id/closeConsole"
++        app:srcCompat="@android:drawable/ic_menu_rotate"
+         tools:ignore="SpeakableTextPresentCheck"
+         tools:visibility="gone" />
+ 
+     <ScrollView
+-        android:id="@+id/scrollView"
++        android:id="@+id/console"
+         android:layout_width="0dp"
+         android:layout_height="500dp"
+         android:background="#000000"
+@@ -37,26 +80,63 @@
+         android:visibility="gone"
+         app:layout_constraintBottom_toBottomOf="parent"
+         app:layout_constraintEnd_toEndOf="parent"
+-        app:layout_constraintHorizontal_bias="1.0"
++        app:layout_constraintHorizontal_bias="0.0"
+         app:layout_constraintStart_toStartOf="parent"
+-        tools:visibility="gone">
++        tools:visibility="visible">
+ 
+         <LinearLayout
+             android:layout_width="match_parent"
+-            android:layout_height="80dp"
++            android:layout_height="wrap_content"
+             android:orientation="vertical">
+ 
+             <TextView
+-                android:id="@+id/output"
++                android:id="@+id/Output"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+-                android:layout_marginBottom="528dp"
+                 android:background="#00FFFFFF"
+                 android:fontFamily="@font/courier_prime"
+                 android:textColor="#FFFFFF"
+                 android:textSize="24sp"
+                 tools:ignore="TextContrastCheck" />
++
++            <com.google.android.material.textfield.TextInputLayout
++                android:layout_width="match_parent"
++                android:layout_height="match_parent">
++
++                <com.google.android.material.textfield.TextInputEditText
++                    android:id="@+id/Input"
++                    android:layout_width="match_parent"
++                    android:layout_height="wrap_content"
++                    android:background="#2AFFFFFF"
++                    android:fontFamily="@font/courier_prime"
++                    android:minHeight="100dp"
++                    android:textColor="#FFFFFF"
++                    android:textSize="24sp"
++                    tools:ignore="SpeakableTextPresentCheck" />
++            </com.google.android.material.textfield.TextInputLayout>
++
+         </LinearLayout>
+     </ScrollView>
+ 
++    <androidx.constraintlayout.widget.Guideline
++        android:id="@+id/guideline2"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:orientation="horizontal"
++        app:layout_constraintGuide_percent="0.8782383" />
++
++    <androidx.constraintlayout.widget.Guideline
++        android:id="@+id/guideline3"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:orientation="vertical"
++        app:layout_constraintGuide_percent="0.33"/>
++
++    <androidx.constraintlayout.widget.Guideline
++        android:id="@+id/guideline4"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:orientation="vertical"
++        app:layout_constraintGuide_percent="0.66" />
++
+ </androidx.constraintlayout.widget.ConstraintLayout>
+\ No newline at end of file
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"DesignSurface\">\r\n    <option name=\"filePathToZoomLevelMap\">\r\n      <map>\r\n        <entry key=\"..\\:/Users/User/Desktop/Module7/app/src/main/res/layout/activity_main.xml\" value=\"0.2\" />\r\n        <entry key=\"..\\:/Users/mironova/AndroidStudioProjects/Module7/app/src/main/res/drawable/inset.xml\" value=\"0.212\" />\r\n        <entry key=\"..\\:/Users/mironova/AndroidStudioProjects/Module7/app/src/main/res/layout/activity_main.xml\" value=\"0.264\" />\r\n        <entry key=\"..\\:/Users/mironova/AndroidStudioProjects/Module7/app/src/main/res/layout/fragment_blank.xml\" value=\"0.264\" />\r\n        <entry key=\"..\\:/Users/mironova/Desktop/Git/Module7/app/src/main/res/layout/activity_main.xml\" value=\"0.25416666666666665\" />\r\n      </map>\r\n    </option>\r\n  </component>\r\n  <component name=\"ProjectRootManager\" version=\"2\" languageLevel=\"JDK_11\" default=\"true\" project-jdk-name=\"Android Studio default JDK\" project-jdk-type=\"JavaSDK\">\r\n    <output url=\"file://$PROJECT_DIR$/build/classes\" />\r\n  </component>\r\n  <component name=\"ProjectType\">\r\n    <option name=\"id\" value=\"Android\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	
++++ b/.idea/misc.xml	
+@@ -3,7 +3,7 @@
+   <component name="DesignSurface">
+     <option name="filePathToZoomLevelMap">
+       <map>
+-        <entry key="..\:/Users/User/Desktop/Module7/app/src/main/res/layout/activity_main.xml" value="0.2" />
++        <entry key="..\:/Users/User/Desktop/Module7/app/src/main/res/layout/activity_main.xml" value="0.136" />
+         <entry key="..\:/Users/mironova/AndroidStudioProjects/Module7/app/src/main/res/drawable/inset.xml" value="0.212" />
+         <entry key="..\:/Users/mironova/AndroidStudioProjects/Module7/app/src/main/res/layout/activity_main.xml" value="0.264" />
+         <entry key="..\:/Users/mironova/AndroidStudioProjects/Module7/app/src/main/res/layout/fragment_blank.xml" value="0.264" />

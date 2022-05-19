@@ -7,6 +7,7 @@ class AlmostVirtualMachine (private val codeText: String = "") {
     var output = ""
     var input = ""
     var doLog = false
+    var infiniteLoopStop = Int.MAX_VALUE
     var globalInts: MutableMap<String, Int> = mutableMapOf()
     var globalArrays: MutableMap<String, MutableList<Int>> = mutableMapOf()
     var globalTypes: MutableMap<String, String> = mutableMapOf()
@@ -29,7 +30,7 @@ class AlmostVirtualMachine (private val codeText: String = "") {
     }
     private var halt = false
     private val calc = Calculations()
-    val instructionsList = convert()
+    var instructionsList = convert()
 
     fun findInstruction(instrName: String): Int? {
         for (i in instructionsList.indices) {
@@ -174,8 +175,13 @@ class AlmostVirtualMachine (private val codeText: String = "") {
     private fun whileLoop(ops: Operands) {
         if (ops.variable != "") println("WARNING: UNNEEDED VARIABLE NAME")
         val returnPoint = pointer
+        var loop = 0
         while (calculateLogical(ops.expr)) {
             execute(returnPoint + 1, listOf("end"))
+            loop++
+            if (loop > infiniteLoopStop) {
+                throw Error("Infinite loop")
+            }
             if (halt) {
                 return
             }
@@ -245,5 +251,9 @@ class AlmostVirtualMachine (private val codeText: String = "") {
             instructionsList += convertLine(match.value)
         }
         return instructionsList
+    }
+
+    fun pushInstr(name: String, variable: String = "", expr: String = "") {
+        instructionsList = instructionsList + Instruction(name, Operands(variable, expr))
     }
 }

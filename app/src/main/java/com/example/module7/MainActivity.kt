@@ -93,39 +93,69 @@ class MainActivity : AppCompatActivity() {
         recyclerviewAdapter = RecyclerviewAdapter()
         binding.rcView.adapter = recyclerviewAdapter
 
+        var expectingInput: Boolean? = null
 
-        binding.buttonRun.setOnClickListener {
-            var str = ""
+        fun updateConsole(program: AlmostVirtualMachine?) {
+            console.visibility = View.VISIBLE
+            consoleClose.visibility = View.VISIBLE
+            when (expectingInput) {
+                null -> {
+                    buttonRestart.visibility = View.GONE
+                    buttonResume.visibility = View.GONE
+                    input.visibility = View.GONE
+                }
+                true -> {
+                    buttonRestart.visibility = View.GONE
+                    buttonResume.visibility = View.VISIBLE
+                    input.visibility = View.VISIBLE
+                    input.requestFocus()
+                }
+                else -> {
+                    buttonRestart.visibility = View.VISIBLE
+                    buttonResume.visibility = View.GONE
+                    input.visibility = View.GONE
+                    output.text = program?.output ?: output.text
+                }
+            }
+        }
+
+        fun run() {
+            val program = AlmostVirtualMachine()
             for (i in 0 until recyclerviewAdapter.blockList.size) {
                 val item = recyclerviewAdapter.blockList[i]
                 when (item.type) {
                     "var" -> {
-                        val varName = item.getNameEditText()
+                        var varName = item.getNameEditText()
                         if (varName == null) {
                         } // Не введено имя переменной
                         var varValue = item.getValueEditText()
-                        if (varValue == null) varValue = "0"
                         // тут имя переменной и значение при присваивании
+                        program.pushInstr("int", varName?: "")
+                        if (varValue != "") {
+                            program.pushInstr("=", varName?: "", varValue?: "")
+                        }
                     }
                     "assignment" -> {
                         val varName = item.getNameEditText()
                         if (varName == null) {
                         } // Не введено имя переменной
                         var expression = item.getValueEditText()
-                        if (expression == null) expression = "0"
                         // имя объекта, которому что-то присваивается и присваиваемое значение
+                        program.pushInstr("=", varName?: "", expression?: "")
                     }
                     "in" -> {
                         val varName = item.getNameEditText()
                         if (varName == null) {
                         } // Не введено имя переменной
                         //имя объекта которого вводит пользователь
+                        program.pushInstr("in", varName?: "")
                     }
                     "out" -> {
                         val varName = item.getNameEditText()
                         if (varName == null) {
                         } // Не введено имя переменной
                         //имя объекта которого выводит пользователь
+                        program.pushInstr("out", "",varName?: "")
                     }
                     "if" -> {
                         val firstExpression = item.getNameEditText()
@@ -136,21 +166,25 @@ class MainActivity : AppCompatActivity() {
                         } // Не введена правая часть сравнения
                         val comparison = item.comparison
                         //Тут обе части сравнения и оператор сравнения
+                        program.pushInstr("if", "", "$firstExpression $comparison $secondExpression")
                     }
                     "else" -> {
                         //просто блок else
+                        program.pushInstr("else")
                     }
                     "begin" -> {
                         //блок begin
                     }
                     "end" -> {
                         //блок end
+                        program.pushInstr("end")
                     }
                     "while" -> {
                         val expression = item.getNameEditText()
                         if (expression == null) {
                         } // логическое выражение не введено
                         //логическое выражение
+                        program.pushInstr("while", "", expression?: "")
                     }
                     "array" -> {
                         val arrayName = item.getNameEditText()
@@ -160,127 +194,73 @@ class MainActivity : AppCompatActivity() {
                         if (arraySize == null) {
                         } // не указан размер массива
                         //имя массива и размер
+                        program.pushInstr("arr", arrayName?: "", arraySize?: "")
                     }
                     "increment" -> {
                         val varName = item.getNameEditText()
                         if (varName == null) {
                         } // не введено имя увеличиваемого объекта
                         // блок для ++
+                        program.pushInstr("=", varName?: "", "$varName + 1")
                     }
                     "decrement" -> {
                         val varName = item.getNameEditText()
                         if (varName == null) {
                         } // не введено имя уменьшаемого объекта
                         // блок для --
-                    }
-                }
-
-            }
-
-            val program = AlmostVirtualMachine(
-                """
-                |int n;
-                |int m;
-                |in n;
-                |in m;
-                |arr A 'n * m';
-                |int i;
-                |int j;
-                |while 'i < n';
-                    |while 'j < m';
-                        |in A[i * m + j];
-                        |++ j;
-                    |end;
-                    |++ i;
-                    |= j '0';
-                |end;
-                |arr B 'm';
-                |= i '0';
-                |while 'i < n';
-                    |while 'j < m';
-                        |= B[j] 'A[i * m + j]';
-                        |++ j;
-                    |end;
-                    |out '*{B}';
-                    |++ i;
-                    |= j '0';
-                |end;""".trimMargin()
-            )
-
-            var expectingInput: Boolean? = null
-
-            fun updateConsole(program: AlmostVirtualMachine?) {
-                console.visibility = View.VISIBLE
-                consoleClose.visibility = View.VISIBLE
-                when (expectingInput) {
-                    null -> {
-                        buttonRestart.visibility = View.GONE
-                        buttonResume.visibility = View.GONE
-                        input.visibility = View.GONE
-                    }
-                    true -> {
-                        buttonRestart.visibility = View.GONE
-                        buttonResume.visibility = View.VISIBLE
-                        input.visibility = View.VISIBLE
-                        input.requestFocus()
-                    }
-                    else -> {
-                        buttonRestart.visibility = View.VISIBLE
-                        buttonResume.visibility = View.GONE
-                        input.visibility = View.GONE
-                        output.text = program?.output ?: output.text
+                        program.pushInstr("=", varName?: "", "$varName - 1")
                     }
                 }
             }
 
-            fun run() {
-                val program = AlmostVirtualMachine(code)
-                program.doLog = true
-                output.text = null
+            program.doLog = true
+            program.infiniteLoopStop = 1000000
+            output.text = null
 
-                buttonResume.setOnClickListener {
-                    program.output = input.text.toString() + "\n"
-                    program.input = input.text.toString()
-                    try {
-                        program.execute()
-                    } catch (e: Error) {
-                        program.output += e.message
-                    }
-                    expectingInput = false
-                    updateConsole(program)
+            fun tryExecute() {
+                try {
+                    program.execute()
+                } catch (e: Throwable) {
+                    program.output += e
                 }
+            }
 
-                if (program.findInstruction("in") == null) {
-                    try {
-                        program.execute()
-                    } catch (e: Error) {
-                        program.output += e.message
-                    }
-                    expectingInput = false
-                } else {
-                    expectingInput = true
-                }
+            buttonResume.setOnClickListener {
+                program.output = input.text.toString() + "\n"
+                program.input = input.text.toString()
+                tryExecute()
+                expectingInput = false
                 updateConsole(program)
             }
-            buttonRun.setOnClickListener {
-                input.text = null
-                run()
+
+            if (program.findInstruction("in") == null) {
+                tryExecute()
+                expectingInput = false
+            } else {
+                expectingInput = true
             }
-            buttonRestart.setOnClickListener {
-                run()
-            }
-            consoleClose.setOnClickListener {
-                console.visibility = View.GONE
-                consoleClose.visibility = View.GONE
-                buttonResume.visibility = View.GONE
-                buttonRestart.visibility = View.GONE
-            }
-            consoleOpen.setOnClickListener {
-                updateConsole(null)
-            }
+            updateConsole(program)
         }
 
+        buttonRun.setOnClickListener {
+            input.text = null
+            run()
+        }
 
+        buttonRestart.setOnClickListener {
+            run()
+        }
+
+        consoleClose.setOnClickListener {
+            console.visibility = View.GONE
+            consoleClose.visibility = View.GONE
+            buttonResume.visibility = View.GONE
+            buttonRestart.visibility = View.GONE
+        }
+
+        consoleOpen.setOnClickListener {
+            updateConsole(null)
+        }
     }
     @SuppressLint("ResourceAsColor")
     private fun init() {
