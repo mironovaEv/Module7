@@ -4,9 +4,14 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/User/Desktop/Module7/app/src/main/res/layout/activity_main.xml" value="0.22604166666666667" />
-        <entry key="..\:/Users/User/Desktop/Module7/app/src/main/res/layout/var_item.xml" value="0.2234375" />
-        <entry key="..\:/Users/User/Desktop/Module7/app/src/main/res/layout/while_item.xml" value="0.2234375" />
-        <entry key="..\:/Users/mironova/Desktop/Git/Module7/app/src/main/res/layout/activity_main.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/mironova/Desktop/Git/Module7/app/src/main/res/drawable/button_run.xml" value="0.1615" />
+        <entry key="..\:/Users/mironova/Desktop/Git/Module7/app/src/main/res/drawable/ic_console.xml" value="0.1955" />
+        <entry key="..\:/Users/mironova/Desktop/Git/Module7/app/src/main/res/drawable/ic_run.xml" value="0.171" />
+        <entry key="..\:/Users/mironova/Desktop/Git/Module7/app/src/main/res/layout/activity_main.xml" value="0.1" />
+        <entry key="..\:/Users/mironova/Desktop/Git/Module7/app/src/main/res/layout/end_item.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/mironova/Desktop/Git/Module7/app/src/main/res/layout/if_item.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/mironova/Desktop/Git/Module7/app/src/main/res/layout/var_item.xml" value="0.264" />
+        <entry key="..\:/Users/mironova/Desktop/Git/Module7/app/src/main/res/layout/while_item.xml" value="0.264" />
       </map>
     </option>
   </component>

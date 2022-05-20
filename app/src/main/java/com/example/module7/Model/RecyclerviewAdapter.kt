@@ -22,13 +22,12 @@ class RecyclerviewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         private const val TYPE_IN = 2
         private const val TYPE_OUT = 3
         private const val TYPE_IF = 4
-        private const val TYPE_BEGIN = 5
-        private const val TYPE_END = 6
-        private const val TYPE_ELSE = 7
-        private const val TYPE_WHILE = 8
-        private const val TYPE_ARRAY = 9
-        private const val TYPE_INCREMENT = 10
-        private const val TYPE_DECREMENT = 11
+        private const val TYPE_END = 5
+        private const val TYPE_ELSE = 6
+        private const val TYPE_WHILE = 7
+        private const val TYPE_ARRAY = 8
+        private const val TYPE_INCREMENT = 9
+        private const val TYPE_DECREMENT = 10
 
 
     }
@@ -181,7 +180,6 @@ class RecyclerviewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             "in" -> TYPE_IN
             "out" -> TYPE_OUT
             "if" -> TYPE_IF
-            "begin" -> TYPE_BEGIN
             "end" -> TYPE_END
             "else" -> TYPE_ELSE
             "while" -> TYPE_WHILE
@@ -213,9 +211,6 @@ class RecyclerviewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             TYPE_IF -> ViewHolderTwo(
                 LayoutInflater.from(parent.context)
                     .inflate(R.layout.if_item, parent, false), blockList, viewType
-            )
-            TYPE_BEGIN ->ViewHolderNull(LayoutInflater.from(parent.context)
-                .inflate(R.layout.begin_item, parent, false), blockList, viewType
             )
             TYPE_END ->ViewHolderNull(LayoutInflater.from(parent.context)
                 .inflate(R.layout.end_item, parent, false), blockList, viewType
@@ -258,7 +253,7 @@ class RecyclerviewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 item.text = blockList[position].comparison
 
             }
-            "begin", "end", "else" ->{
+            "end", "else" ->{
 
             }
             else -> throw  IllegalStateException()

@@ -171,9 +171,6 @@ class MainActivity : AppCompatActivity() {
                         //просто блок else
                         program.pushInstr("else")
                     }
-                    "begin" -> {
-                        //блок begin
-                    }
                     "end" -> {
                         //блок end
                         program.pushInstr("end")
@@ -488,6 +485,7 @@ class MainActivity : AppCompatActivity() {
                 .setLabelClickable(false)
                 .create()
         )
+
         binding.buttonAdd.addActionItem(
             SpeedDialActionItem.Builder(R.id.creating_decrement, R.drawable.ic_add_decrement)
                 .setFabBackgroundColor(
@@ -505,6 +503,34 @@ class MainActivity : AppCompatActivity() {
                     )
                 )
                 .setLabel("Декремент")
+                .setLabelColor(R.color.label_color)
+                .setLabelBackgroundColor(
+                    ResourcesCompat.getColor(
+                        resources,
+                        R.color.label_back,
+                        theme
+                    )
+                )
+                .setLabelClickable(false)
+                .create()
+        )
+        binding.buttonAdd.addActionItem(
+            SpeedDialActionItem.Builder(R.id.creating_end, R.drawable.ic_add_end)
+                .setFabBackgroundColor(
+                    ResourcesCompat.getColor(
+                        resources,
+                        R.color.end_back,
+                        theme
+                    )
+                )
+                .setFabImageTintColor(
+                    ResourcesCompat.getColor(
+                        resources,
+                        R.color.white,
+                        theme
+                    )
+                )
+                .setLabel("Конец блока")
                 .setLabelColor(R.color.label_color)
                 .setLabelBackgroundColor(
                     ResourcesCompat.getColor(
@@ -542,14 +568,11 @@ class MainActivity : AppCompatActivity() {
                         val checkElse = myDialog.findViewById<CheckBox>(R.id.checkElse)
                         if (checkElse.isChecked) {
                             recyclerviewAdapter.addBlock("if", comparison)
-                            recyclerviewAdapter.addBlock("begin", "")
                             recyclerviewAdapter.addBlock("end", "")
                             recyclerviewAdapter.addBlock("else", "")
-                            recyclerviewAdapter.addBlock("begin", "")
                             recyclerviewAdapter.addBlock("end", "")
                         } else {
                             recyclerviewAdapter.addBlock("if", comparison)
-                            recyclerviewAdapter.addBlock("begin", "")
                             recyclerviewAdapter.addBlock("end", "")
                         }
                         myAlertDialog.dismiss()
@@ -562,7 +585,6 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.creating_while -> {
                     recyclerviewAdapter.addBlock("while", "")
-                    recyclerviewAdapter.addBlock("begin", "")
                     recyclerviewAdapter.addBlock("end", "")
                 }
                 R.id.creating_array -> {
