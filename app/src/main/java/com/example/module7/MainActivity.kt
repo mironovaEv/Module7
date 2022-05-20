@@ -5,7 +5,6 @@ import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.ScrollView
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
@@ -23,7 +22,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     lateinit var recyclerviewAdapter: RecyclerviewAdapter
     private lateinit var blockList: ArrayList<Block>
-
 
     private val itemTouchHelper by lazy {
         val itemTouchCallback =
@@ -98,6 +96,7 @@ class MainActivity : AppCompatActivity() {
         fun updateConsole(program: AlmostVirtualMachine?) {
             console.visibility = View.VISIBLE
             consoleClose.visibility = View.VISIBLE
+            binding.buttonAdd.visibility = View.GONE
             when (expectingInput) {
                 null -> {
                     buttonRestart.visibility = View.GONE
@@ -256,6 +255,7 @@ class MainActivity : AppCompatActivity() {
             consoleClose.visibility = View.GONE
             buttonResume.visibility = View.GONE
             buttonRestart.visibility = View.GONE
+            binding.buttonAdd.visibility = View.VISIBLE
         }
 
         consoleOpen.setOnClickListener {

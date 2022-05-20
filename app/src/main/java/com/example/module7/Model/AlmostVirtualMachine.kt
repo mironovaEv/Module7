@@ -30,7 +30,7 @@ class AlmostVirtualMachine (private val codeText: String = "") {
     }
     private var halt = false
     private val calc = Calculations()
-    var instructionsList = convert()
+    private var instructionsList = convert()
 
     fun findInstruction(instrName: String): Int? {
         for (i in instructionsList.indices) {
@@ -65,7 +65,11 @@ class AlmostVirtualMachine (private val codeText: String = "") {
             val instr = instructionsList[pointer]
             instructionLog(pointer, instr)
             if (instr.name in instrHandlers) {
-                instrHandlers[instr.name]?.invoke(instr.ops)
+                try {
+                    instrHandlers[instr.name]?.invoke(instr.ops)
+                } catch (e: Error) {
+                    throw Error("ERROR: ${e.message} at\n-> ${instr.name} ${instr.ops.variable} ${instr.ops.expr}")
+                }
             }
             if (instr.name in stopInstr) break
             pointer++
@@ -86,8 +90,8 @@ class AlmostVirtualMachine (private val codeText: String = "") {
 
     private fun newInt(ops: Operands) {
         when {
-            Regex("""[A-Za-z_]\w*""").matchEntire(ops.variable) == null -> println("WARNING: INVALID VARIABLE NAME")
-            ops.variable in globalTypes -> println("WARNING: VARIABLE ${ops.variable} ALREADY EXISTS")
+            Regex("""[A-Za-z_]\w*""").matchEntire(ops.variable) == null -> throw Error("VARIABLE NAME ${ops.variable} IS INVALID")
+            ops.variable in globalTypes -> throw Error("VARIABLE ${ops.variable} ALREADY EXISTS")
             else -> {
                 globalTypes[ops.variable] = "int"
                 globalInts[ops.variable] = 0
@@ -98,11 +102,11 @@ class AlmostVirtualMachine (private val codeText: String = "") {
 
     private fun newArr(ops: Operands) {
         when {
-            Regex("""[A-Za-z_]\w*""").matchEntire(ops.variable) == null -> println("WARNING: INVALID VARIABLE NAME")
-            ops.variable in globalTypes -> println("WARNING: VARIABLE ${ops.variable} ALREADY EXISTS")
+            Regex("""[A-Za-z_]\w*""").matchEntire(ops.variable) == null -> throw Error("VARIABLE NAME ${ops.variable} IS INVALID")
+            ops.variable in globalTypes -> throw Error("VARIABLE ${ops.variable} ALREADY EXISTS")
             else -> {
                 globalTypes[ops.variable] = "array"
-                globalArrays[ops.variable] = MutableList(calc.calculation(dereference(ops.expr)), { 0 })
+                globalArrays[ops.variable] = MutableList(calculate(dereference(ops.expr)), { 0 })
                 globalVariablesLog("GLOBAL VARIABLES:")
             }
         }
@@ -110,18 +114,19 @@ class AlmostVirtualMachine (private val codeText: String = "") {
 
     private fun assign(ops: Operands) {
         when {
-            ops.variable == "" -> println("WARNING: NO VARIABLE NAME GIVEN")
-            Regex("""[A-Za-z_]\w*""").find(ops.variable)?.value !in globalTypes -> println("WARNING: VARIABLE ${ops.variable} DOES NOT EXIST")
-            ops.expr == "" -> println("WARNING: NO EXPRESSION GIVEN")
+            ops.variable == "" -> throw Error("NO VARIABLE NAME GIVEN")
+            Regex("""[A-Za-z_]\w*""").find(ops.variable)?.value !in globalTypes ->
+                throw Error("VARIABLE ${ops.variable} DOES NOT EXIST")
+            ops.expr == "" -> throw Error("NO EXPRESSION GIVEN")
             else -> {
                 val reg = Regex("""(?<Name>[^\[\]]+)\[(?<Index>.+)\]""")
                 val match = reg.matchEntire(ops.variable)
                 if (match == null) {
-                    globalInts[ops.variable] = calc.calculation(dereference(ops.expr))
+                    globalInts[ops.variable] = calculate(dereference(ops.expr))
                 } else {
                     globalArrays[match.groupValues[1]]?.set(
-                        calc.calculation(dereference(match.groupValues[2])),
-                        calc.calculation(dereference(ops.expr))
+                        calculate(dereference(match.groupValues[2])),
+                        calculate(dereference(ops.expr))
                     )
                 }
                 globalVariablesLog("GLOBAL VARIABLES:")
@@ -148,11 +153,20 @@ class AlmostVirtualMachine (private val codeText: String = "") {
     }
 
     private fun out(ops: Operands) {
-        val reg = Regex("""\*\{([^\{\}]+)\}""")
-        val newOutput = reg.replace(ops.expr) {
-            match -> if (Regex("""\[.+\]""").find(match.groupValues[1]) == null && globalTypes[match.groupValues[1]] == "array") {
-                globalArrays[match.groupValues[1]].toString()
-            } else getVal(match.groupValues[1]).toString()
+        val newOutput: String
+        if (Regex("""\".*\"""").matchEntire(ops.expr) != null) {
+            val reg = Regex("""\*\{([^\{\}]+)\}""")
+            newOutput = reg.replace(ops.expr.dropLast(1).drop(1)) { match ->
+                if (Regex("""\[.+\]""").find(match.groupValues[1]) == null && globalTypes[match.groupValues[1]] == "array") {
+                    globalArrays[match.groupValues[1]].toString()
+                } else getVal(match.groupValues[1]).toString()
+            }
+        } else {
+            if (Regex("""\[.+\]""").find(ops.expr) == null && globalTypes[ops.expr] == "array") {
+                newOutput = globalArrays[ops.expr].toString()
+            } else {
+                newOutput = calculate(dereference(ops.expr)).toString()
+            }
         }
         output += newOutput + "\n"
     }
@@ -206,7 +220,7 @@ class AlmostVirtualMachine (private val codeText: String = "") {
         return if (match == null) {
             globalInts[variable]
         } else {
-            globalArrays[match.groupValues[1]]?.get(calc.calculation(dereference(match.groupValues[2])))
+            globalArrays[match.groupValues[1]]?.get(calculate(dereference(match.groupValues[2])))
         }
     }
 
@@ -220,21 +234,42 @@ class AlmostVirtualMachine (private val codeText: String = "") {
         return finalExpr
     }
 
+    private fun calculate(expr: String): Int {
+        val result: Int
+        try {
+            result = calc.calculation(expr)
+        } catch (e: Throwable) {
+            throw Error("COULD NOT CALCULATE EXPRESSION ${expr}")
+        }
+        return result
+    }
+
     private fun calculateLogical(expr: String): Boolean {
-        val reg = Regex("^(?<operand1>[^<>=!]+) (?<operator>>|<|>=|<=|=|!=) (?<operand2>[^<>=!]+)\$")
+        val reg = Regex("^(?<operand1>[^<>=!]+) (?<operator>>|<|>=|<=|==|!=) (?<operand2>[^<>=!]+)\$")
         val match = reg.find(expr) ?: throw Error ("Некорректное логическое выражение: $expr")
-        val a = calc.calculation(dereference(match.groupValues[1]))
+        val a = calculate(dereference(match.groupValues[1]))
         val op = match.groupValues[2]
-        val b = calc.calculation(dereference(match.groupValues[3]))
+        val b = calculate(dereference(match.groupValues[3]))
         return when (op) {
             ">" -> a > b
             "<" -> a < b
             ">=" -> a >= b
             "<=" -> a <= b
-            "=" -> a == b
+            "==" -> a == b
             "!=" -> a != b
             else -> false
         }
+    }
+
+    private fun formatExpression(expr: String): String {
+        var exprNew = expr
+        if ('"' !in expr) {
+            exprNew = Regex("""[-+*\/%]|[<>!=]=|[<>]""").replace(expr) { match -> " ${match.value} " }
+            exprNew = Regex("""\(""").replace(exprNew, "( ")
+            exprNew = Regex("""\)""").replace(exprNew, " )")
+            exprNew = Regex("""\s{2,}""").replace(exprNew, " ")
+        }
+        return Regex("""(?<=^|\[)\s+|\s+(?=$|\])""").replace(exprNew, "")
     }
 
     private fun convertLine(codeLine: String): Instruction {
@@ -254,6 +289,6 @@ class AlmostVirtualMachine (private val codeText: String = "") {
     }
 
     fun pushInstr(name: String, variable: String = "", expr: String = "") {
-        instructionsList = instructionsList + Instruction(name, Operands(variable, expr))
+        instructionsList = instructionsList + Instruction(name, Operands(formatExpression(variable), formatExpression(expr)))
     }
 }
