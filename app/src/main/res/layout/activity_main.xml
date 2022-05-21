@@ -83,6 +83,23 @@
         tools:ignore="SpeakableTextPresentCheck"
         tools:visibility="gone" />
 
+    <ImageButton
+        android:id="@+id/consoleOpen"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/buttonsHeight"
+        android:layout_marginStart="@dimen/buttonsMargin"
+        android:layout_marginTop="@dimen/buttonsMargin"
+        android:layout_marginEnd="@dimen/buttonsMargin"
+        android:layout_marginBottom="@dimen/buttonsMargin"
+        android:background="@android:color/transparent"
+        android:scaleType="fitXY"
+        app:layout_constraintBottom_toBottomOf="@+id/buttonAdd"
+        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline4"
+        app:srcCompat="@drawable/ic_console"
+        tools:ignore="SpeakableTextPresentCheck,SpeakableTextPresentCheck,SpeakableTextPresentCheck" />
+
     <ScrollView
         android:id="@+id/console"
         android:layout_width="@dimen/consoleWidth"
@@ -145,23 +162,6 @@
         app:sdMainFabOpenedIconColor="@color/background"
         app:sdOverlayLayout="@id/overlay"
         tools:ignore="MissingConstraints" />
-
-    <ImageButton
-        android:id="@+id/consoleOpen"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/buttonsHeight"
-        android:layout_marginStart="@dimen/buttonsMargin"
-        android:layout_marginTop="@dimen/buttonsMargin"
-        android:layout_marginEnd="@dimen/buttonsMargin"
-        android:layout_marginBottom="@dimen/buttonsMargin"
-        android:background="@android:color/transparent"
-        android:scaleType="fitXY"
-        app:layout_constraintBottom_toBottomOf="@+id/buttonAdd"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline4"
-        app:srcCompat="@drawable/ic_console"
-        tools:ignore="SpeakableTextPresentCheck,SpeakableTextPresentCheck,SpeakableTextPresentCheck" />
 
     <ImageView
         android:id="@+id/buttonRun"
