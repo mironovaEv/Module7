@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="blockText">30sp</dimen>
+    <dimen name="blockWidth">0dp</dimen>
+    <dimen name="blockHeight">55dp</dimen>
+    <dimen name="blockMarginStartEnd">8dp</dimen>
+    <dimen name="blockMarginTop">4dp</dimen>
+    <dimen name="blockEdit">20sp</dimen>
+    <dimen name="whileEditWidth">200dp</dimen>
+    <dimen name="whileEditMarginStart">10dp</dimen>
+    <dimen name="varMarginStart">5dp</dimen>
+    <dimen name="varEditWidth">0dp</dimen>
+    <dimen name="editMarginStartEnd">4dp</dimen>
+    <dimen name="oneEditWidth">170dp</dimen>
+    <dimen name="oneEditMarginStart">10dp</dimen>
+    <dimen name="blockEndWidth">55dp</dimen>
+    <dimen name="outEditMarginStart">10dp</dimen>
+    <dimen name="arrayMarginStart">8dp</dimen>
+    <dimen name="arraySizeEditWidth">90dp</dimen>
+    <dimen name="arraySizeMarginEnd">5dp</dimen>
+    <dimen name="rcView">0dp</dimen>
+    <dimen name="rcViewMargin">1dp</dimen>
+    <dimen name="consoleButton">90dp</dimen>
+    <dimen name="consoleButtonMarginEnd">92dp</dimen>
+    <dimen name="bottomLine">86dp</dimen>
+    <dimen name="consoleWidth">0dp</dimen>
+    <dimen name="consoleHeight">500dp</dimen>
+    <dimen name="consolePadding">10dp</dimen>
+    <dimen name="linearHeight">80dp</dimen>
+    <dimen name="consoleText">24sp</dimen>
+    <dimen name="inputMinHeight">100dp</dimen>
+    <dimen name="buttonsHeight">60dp</dimen>
+    <dimen name="buttonsMargin">12dp</dimen>
+    <dimen name="buttonRunWidth">0dp</dimen>
+
+</resources>

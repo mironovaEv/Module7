@@ -16,7 +16,7 @@
         android:id="@+id/checkElse"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="else" />
+        android:text="@string/else_text" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:backgroundTint="@color/if_else_back"
-            android:text="Отмена" />
+            android:text="@string/cancel" />
 
         <Button
             android:id="@+id/buttonCreate"
@@ -39,7 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:backgroundTint="@color/if_else_back"
-            android:text="Создать" />
+            android:text="@string/create" />
     </LinearLayout>
 
 </LinearLayout>

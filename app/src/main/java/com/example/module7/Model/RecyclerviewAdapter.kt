@@ -6,12 +6,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.Spinner
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.module7.R
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 class RecyclerviewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -33,12 +31,9 @@ class RecyclerviewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     var blockList = ArrayList<Block>()
-    class ViewHolderNull(itemView: View, blockList: ArrayList<Block>, viewType: Int) :
-        RecyclerView.ViewHolder(itemView) {
-            init {
 
-            }
-        }
+    class ViewHolderNull(itemView: View) :
+        RecyclerView.ViewHolder(itemView)
 
     class ViewHolderOne(itemView: View, blockList: ArrayList<Block>, viewType: Int) :
         RecyclerView.ViewHolder(itemView) {
@@ -168,7 +163,6 @@ class RecyclerviewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
 
-
     override fun getItemCount(): Int {
         return blockList.size
     }
@@ -212,30 +206,36 @@ class RecyclerviewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 LayoutInflater.from(parent.context)
                     .inflate(R.layout.if_item, parent, false), blockList, viewType
             )
-            TYPE_END ->ViewHolderNull(LayoutInflater.from(parent.context)
-                .inflate(R.layout.end_item, parent, false), blockList, viewType
+            TYPE_END -> ViewHolderNull(
+                LayoutInflater.from(parent.context)
+                    .inflate(R.layout.end_item, parent, false)
             )
-            TYPE_ELSE ->ViewHolderNull(LayoutInflater.from(parent.context)
-                .inflate(R.layout.else_item, parent, false), blockList, viewType
+            TYPE_ELSE -> ViewHolderNull(
+                LayoutInflater.from(parent.context)
+                    .inflate(R.layout.else_item, parent, false)
             )
-            TYPE_WHILE ->ViewHolderOne(LayoutInflater.from(parent.context)
-                .inflate(R.layout.while_item, parent, false), blockList, viewType
+            TYPE_WHILE -> ViewHolderOne(
+                LayoutInflater.from(parent.context)
+                    .inflate(R.layout.while_item, parent, false), blockList, viewType
             )
-            TYPE_ARRAY ->ViewHolderTwo(LayoutInflater.from(parent.context)
-                .inflate(R.layout.array_item, parent, false), blockList, viewType
+            TYPE_ARRAY -> ViewHolderTwo(
+                LayoutInflater.from(parent.context)
+                    .inflate(R.layout.array_item, parent, false), blockList, viewType
             )
-            TYPE_INCREMENT ->ViewHolderOne(LayoutInflater.from(parent.context)
-                .inflate(R.layout.increment_item, parent, false), blockList, viewType
+            TYPE_INCREMENT -> ViewHolderOne(
+                LayoutInflater.from(parent.context)
+                    .inflate(R.layout.increment_item, parent, false), blockList, viewType
             )
-            TYPE_DECREMENT ->ViewHolderOne(LayoutInflater.from(parent.context)
-                .inflate(R.layout.decrement_item, parent, false), blockList, viewType
+            TYPE_DECREMENT -> ViewHolderOne(
+                LayoutInflater.from(parent.context)
+                    .inflate(R.layout.decrement_item, parent, false), blockList, viewType
             )
             else -> throw  IllegalStateException()
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (blockList[position].type){
+        when (blockList[position].type) {
             "var", "assignment", "array" -> {
                 val myHolder = holder as ViewHolderTwo
                 myHolder.varName.setText(blockList[position].getNameEditText())
@@ -253,7 +253,7 @@ class RecyclerviewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 item.text = blockList[position].comparison
 
             }
-            "end", "else" ->{
+            "end", "else" -> {
 
             }
             else -> throw  IllegalStateException()
@@ -280,6 +280,5 @@ class RecyclerviewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         blockList.add(Block(type, comparison))
         notifyItemChanged(itemCount - 1)
     }
-
 
 }

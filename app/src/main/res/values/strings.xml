@@ -8,5 +8,37 @@
         <item>==</item>
         <item>!=</item>
     </string-array>
-
+    <string name="block_while">while</string>
+    <string name="condition">Условие</string>
+    <string name="value">Значение</string>
+    <string name="equally">=</string>
+    <string name="variable">Переменная</string>
+    <string name="var">var</string>
+    <string name="out">out</string>
+    <string name="name">Имя</string>
+    <string name="plus_plus">++</string>
+    <string name="in">in</string>
+    <string name="equally_equally">==</string>
+    <string name="if_text">if</string>
+    <string name="create">Создать</string>
+    <string name="cancel">Отмена</string>
+    <string name="else_text">else</string>
+    <string name="end_symbol">}</string>
+    <string name="minus_minus">--</string>
+    <string name="assignment">:=</string>
+    <string name="r_bracket">)</string>
+    <string name="l_bracket">(</string>
+    <string name="size">Размер</string>
+    <string name="array">array</string>
+    <string name="creating_variable">Создание переменной</string>
+    <string name="assignment_item">Присваивание</string>
+    <string name="input">Ввод</string>
+    <string name="output">Вывод</string>
+    <string name="condition_item">Условие</string>
+    <string name="cycle">Цикл while</string>
+    <string name="array_item">Массив</string>
+    <string name="increment">Инкремент</string>
+    <string name="decrement">Декремент</string>
+    <string name="end_block">Конец блока</string>
+    <string name="details">Укажите детали</string>
 </resources>

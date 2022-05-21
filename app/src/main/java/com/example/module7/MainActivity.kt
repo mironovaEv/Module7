@@ -2,6 +2,8 @@ package com.example.module7
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -22,6 +24,23 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     lateinit var recyclerviewAdapter: RecyclerviewAdapter
     private lateinit var blockList: ArrayList<Block>
+    private lateinit var prefs: SharedPreferences
+
+    companion object {
+        const val VAR = "var"
+        const val ASSIGNMENT = "assignment"
+        const val IN = "in"
+        const val OUT = "out"
+        const val IF = "if"
+        const val ELSE = "else"
+        const val WHILE = "while"
+        const val BLOCK_END = "end"
+        const val ARRAY = "array"
+        const val INCREMENT = "increment"
+        const val DECREMENT = "decrement"
+
+
+    }
 
     private val itemTouchHelper by lazy {
         val itemTouchCallback =
@@ -84,7 +103,9 @@ class MainActivity : AppCompatActivity() {
         val buttonRestart = binding.buttonRestart
         val consoleClose = binding.consoleClose
         setContentView(view)
-
+        prefs = getSharedPreferences(
+            "com.example.app", Context.MODE_PRIVATE
+        )
         init()
         itemTouchHelper.attachToRecyclerView(binding.rcView)
         blockList = ArrayList()
@@ -123,88 +144,59 @@ class MainActivity : AppCompatActivity() {
             for (i in 0 until recyclerviewAdapter.blockList.size) {
                 val item = recyclerviewAdapter.blockList[i]
                 when (item.type) {
-                    "var" -> {
-                        var varName = item.getNameEditText()
-                        if (varName == null) {
-                        } // Не введено имя переменной
-                        var varValue = item.getValueEditText()
-                        // тут имя переменной и значение при присваивании
-                        program.pushInstr("int", varName?: "")
+                    VAR -> {
+                        val varName = item.getNameEditText()
+                        val varValue = item.getValueEditText()
+                        program.pushInstr("int", varName ?: "")
                         if (varValue != "") {
-                            program.pushInstr("=", varName?: "", varValue?: "")
+                            program.pushInstr("=", varName ?: "", varValue ?: "")
                         }
                     }
-                    "assignment" -> {
+                    ASSIGNMENT -> {
                         val varName = item.getNameEditText()
-                        if (varName == null) {
-                        } // Не введено имя переменной
-                        var expression = item.getValueEditText()
-                        // имя объекта, которому что-то присваивается и присваиваемое значение
-                        program.pushInstr("=", varName?: "", expression?: "")
+                        val expression = item.getValueEditText()
+                        program.pushInstr("=", varName ?: "", expression ?: "")
                     }
-                    "in" -> {
+                    IN -> {
                         val varName = item.getNameEditText()
-                        if (varName == null) {
-                        } // Не введено имя переменной
-                        //имя объекта которого вводит пользователь
-                        program.pushInstr("in", varName?: "")
+                        program.pushInstr("in", varName ?: "")
                     }
-                    "out" -> {
+                    OUT -> {
                         val varName = item.getNameEditText()
-                        if (varName == null) {
-                        } // Не введено имя переменной
-                        //имя объекта которого выводит пользователь
-                        program.pushInstr("out", "",varName?: "")
+                        program.pushInstr("out", "", varName ?: "")
                     }
-                    "if" -> {
+                    IF -> {
                         val firstExpression = item.getNameEditText()
-                        if (firstExpression == null) {
-                        } // Не введена левая часть сравнения
                         val secondExpression = item.getValueEditText()
-                        if (secondExpression == null) {
-                        } // Не введена правая часть сравнения
                         val comparison = item.comparison
-                        //Тут обе части сравнения и оператор сравнения
-                        program.pushInstr("if", "", "$firstExpression $comparison $secondExpression")
+                        program.pushInstr(
+                            "if",
+                            "",
+                            "$firstExpression $comparison $secondExpression"
+                        )
                     }
-                    "else" -> {
-                        //просто блок else
+                    ELSE -> {
                         program.pushInstr("else")
                     }
-                    "end" -> {
-                        //блок end
+                    BLOCK_END -> {
                         program.pushInstr("end")
                     }
-                    "while" -> {
+                    WHILE -> {
                         val expression = item.getNameEditText()
-                        if (expression == null) {
-                        } // логическое выражение не введено
-                        //логическое выражение
-                        program.pushInstr("while", "", expression?: "")
+                        program.pushInstr("while", "", expression ?: "")
                     }
-                    "array" -> {
+                    ARRAY -> {
                         val arrayName = item.getNameEditText()
-                        if (arrayName == null) {
-                        } // не введено имя массива
                         val arraySize = item.getValueEditText()
-                        if (arraySize == null) {
-                        } // не указан размер массива
-                        //имя массива и размер
-                        program.pushInstr("arr", arrayName?: "", arraySize?: "")
+                        program.pushInstr("arr", arrayName ?: "", arraySize ?: "")
                     }
-                    "increment" -> {
+                    INCREMENT -> {
                         val varName = item.getNameEditText()
-                        if (varName == null) {
-                        } // не введено имя увеличиваемого объекта
-                        // блок для ++
-                        program.pushInstr("=", varName?: "", "$varName + 1")
+                        program.pushInstr("=", varName ?: "", "$varName + 1")
                     }
-                    "decrement" -> {
+                    DECREMENT -> {
                         val varName = item.getNameEditText()
-                        if (varName == null) {
-                        } // не введено имя уменьшаемого объекта
-                        // блок для --
-                        program.pushInstr("=", varName?: "", "$varName - 1")
+                        program.pushInstr("=", varName ?: "", "$varName - 1")
                     }
                 }
             }
@@ -229,11 +221,12 @@ class MainActivity : AppCompatActivity() {
                 updateConsole(program)
             }
 
-            if (program.findInstruction("in") == null) {
+
+            expectingInput = if (program.findInstruction("in") == null) {
                 tryExecute()
-                expectingInput = false
+                false
             } else {
-                expectingInput = true
+                true
             }
             updateConsole(program)
         }
@@ -259,6 +252,8 @@ class MainActivity : AppCompatActivity() {
             updateConsole(null)
         }
     }
+
+
     @SuppressLint("ResourceAsColor")
     private fun init() {
         binding.buttonAdd.addActionItem(
@@ -277,7 +272,7 @@ class MainActivity : AppCompatActivity() {
                         theme
                     )
                 )
-                .setLabel("Создание переменной")
+                .setLabel(R.string.creating_variable)
                 .setLabelColor(R.color.label_color)
                 .setLabelBackgroundColor(
                     ResourcesCompat.getColor(
@@ -305,7 +300,7 @@ class MainActivity : AppCompatActivity() {
                         theme
                     )
                 )
-                .setLabel("Присваивание")
+                .setLabel(R.string.assignment_item)
                 .setLabelColor(R.color.label_color)
                 .setLabelBackgroundColor(
                     ResourcesCompat.getColor(
@@ -333,7 +328,7 @@ class MainActivity : AppCompatActivity() {
                         theme
                     )
                 )
-                .setLabel("Ввод")
+                .setLabel(R.string.input)
                 .setLabelColor(R.color.label_color)
                 .setLabelBackgroundColor(
                     ResourcesCompat.getColor(
@@ -361,7 +356,7 @@ class MainActivity : AppCompatActivity() {
                         theme
                     )
                 )
-                .setLabel("Вывод")
+                .setLabel(R.string.output)
                 .setLabelColor(R.color.label_color)
                 .setLabelBackgroundColor(
                     ResourcesCompat.getColor(
@@ -389,7 +384,7 @@ class MainActivity : AppCompatActivity() {
                         theme
                     )
                 )
-                .setLabel("Условие")
+                .setLabel(R.string.condition_item)
                 .setLabelColor(R.color.label_color)
                 .setLabelBackgroundColor(
                     ResourcesCompat.getColor(
@@ -417,7 +412,7 @@ class MainActivity : AppCompatActivity() {
                         theme
                     )
                 )
-                .setLabel("Цикл while")
+                .setLabel(R.string.cycle)
                 .setLabelColor(R.color.label_color)
                 .setLabelBackgroundColor(
                     ResourcesCompat.getColor(
@@ -445,7 +440,7 @@ class MainActivity : AppCompatActivity() {
                         theme
                     )
                 )
-                .setLabel("Массив")
+                .setLabel(R.string.array_item)
                 .setLabelColor(R.color.label_color)
                 .setLabelBackgroundColor(
                     ResourcesCompat.getColor(
@@ -473,7 +468,7 @@ class MainActivity : AppCompatActivity() {
                         theme
                     )
                 )
-                .setLabel("Инкремент")
+                .setLabel(R.string.increment)
                 .setLabelColor(R.color.label_color)
                 .setLabelBackgroundColor(
                     ResourcesCompat.getColor(
@@ -502,7 +497,7 @@ class MainActivity : AppCompatActivity() {
                         theme
                     )
                 )
-                .setLabel("Декремент")
+                .setLabel(R.string.decrement)
                 .setLabelColor(R.color.label_color)
                 .setLabelBackgroundColor(
                     ResourcesCompat.getColor(
@@ -530,7 +525,7 @@ class MainActivity : AppCompatActivity() {
                         theme
                     )
                 )
-                .setLabel("Конец блока")
+                .setLabel(R.string.end_block)
                 .setLabelColor(R.color.label_color)
                 .setLabelBackgroundColor(
                     ResourcesCompat.getColor(
@@ -545,35 +540,34 @@ class MainActivity : AppCompatActivity() {
         binding.buttonAdd.setOnActionSelectedListener { actionItem ->
             when (actionItem.id) {
                 R.id.creating_variable -> {
-                    recyclerviewAdapter.addBlock("var", "")
+                    recyclerviewAdapter.addBlock(VAR, "")
                 }
                 R.id.assignment -> {
-                    recyclerviewAdapter.addBlock("assignment", "")
+                    recyclerviewAdapter.addBlock(ASSIGNMENT, "")
                 }
                 R.id.creating_in -> {
-                    recyclerviewAdapter.addBlock("in", "")
+                    recyclerviewAdapter.addBlock(IN, "")
                 }
                 R.id.creating_out -> {
-                    recyclerviewAdapter.addBlock("out", "")
+                    recyclerviewAdapter.addBlock(OUT, "")
                 }
                 R.id.creating_if -> {
                     val myDialog = LayoutInflater.from(this).inflate(R.layout.if_dialog, null)
                     val myBuilder = AlertDialog.Builder(this)
                         .setView(myDialog)
-                        .setTitle("Укажите детали")
+                        .setTitle(R.string.details)
                     val myAlertDialog = myBuilder.show()
                     myDialog.findViewById<Button>(R.id.buttonCreate).setOnClickListener {
                         val comparison =
                             myDialog.findViewById<Spinner>(R.id.comparisons).selectedItem.toString()
                         val checkElse = myDialog.findViewById<CheckBox>(R.id.checkElse)
                         if (checkElse.isChecked) {
-                            recyclerviewAdapter.addBlock("if", comparison)
-                            recyclerviewAdapter.addBlock("end", "")
-                            recyclerviewAdapter.addBlock("else", "")
-                            recyclerviewAdapter.addBlock("end", "")
+                            recyclerviewAdapter.addBlock(IF, comparison)
+                            recyclerviewAdapter.addBlock(ELSE, "")
+                            recyclerviewAdapter.addBlock(BLOCK_END, "")
                         } else {
-                            recyclerviewAdapter.addBlock("if", comparison)
-                            recyclerviewAdapter.addBlock("end", "")
+                            recyclerviewAdapter.addBlock(IF, comparison)
+                            recyclerviewAdapter.addBlock(BLOCK_END, "")
                         }
                         myAlertDialog.dismiss()
 
@@ -584,17 +578,20 @@ class MainActivity : AppCompatActivity() {
 
                 }
                 R.id.creating_while -> {
-                    recyclerviewAdapter.addBlock("while", "")
-                    recyclerviewAdapter.addBlock("end", "")
+                    recyclerviewAdapter.addBlock(WHILE, "")
+                    recyclerviewAdapter.addBlock(BLOCK_END, "")
                 }
                 R.id.creating_array -> {
-                    recyclerviewAdapter.addBlock("array", "")
+                    recyclerviewAdapter.addBlock(ARRAY, "")
                 }
                 R.id.creating_increment -> {
-                    recyclerviewAdapter.addBlock("increment", "")
+                    recyclerviewAdapter.addBlock(INCREMENT, "")
                 }
                 R.id.creating_decrement -> {
-                    recyclerviewAdapter.addBlock("decrement", "")
+                    recyclerviewAdapter.addBlock(DECREMENT, "")
+                }
+                R.id.creating_end -> {
+                    recyclerviewAdapter.addBlock(BLOCK_END, "")
                 }
             }
             false

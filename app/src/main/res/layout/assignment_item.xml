@@ -1,73 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    >
+    android:layout_height="wrap_content">
 
     <TextView
         android:id="@+id/assignmentBack"
-        android:layout_width="0dp"
-        android:layout_height="55dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="8dp"
-        android:background="@drawable/rounded_corner"
+        style="@style/blockBackground"
         android:backgroundTint="@color/assignment_back"
-        android:gravity="center"
-        android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.50121653" />
-
     <EditText
         android:id="@+id/varNameAss"
-        android:layout_width="175dp"
+        style="@style/blockEdit"
+        android:layout_width="@dimen/varEditWidth"
         android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:backgroundTint="@color/white"
+        android:layout_marginStart="@dimen/editMarginStartEnd"
+        android:layout_marginEnd="@dimen/editMarginStartEnd"
         android:ems="10"
-        android:hint="Имя переменной"
-        android:inputType="text"
-        android:textColor="@color/white"
-        android:textSize="15sp"
         app:layout_constraintBottom_toBottomOf="@+id/assignmentBack"
+        app:layout_constraintEnd_toStartOf="@+id/assignmentSymbol"
         app:layout_constraintStart_toStartOf="@+id/assignmentBack"
         app:layout_constraintTop_toTopOf="@+id/assignmentBack"
         app:layout_constraintVertical_bias="0.52" />
 
     <EditText
         android:id="@+id/varValueAss"
-        android:layout_width="175dp"
+        style="@style/blockEdit"
+        android:layout_width="@dimen/varEditWidth"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="5dp"
-        android:backgroundTint="@color/white"
+        android:layout_marginStart="@dimen/editMarginStartEnd"
+        android:layout_marginEnd="@dimen/editMarginStartEnd"
         android:ems="10"
-        android:hint="Присваеваемое значение"
-        android:inputType="text"
-        android:textColor="@color/white"
-        android:textSize="13sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/assignmentBack"
+        app:layout_constraintStart_toEndOf="@+id/assignmentSymbol"
         app:layout_constraintTop_toTopOf="@+id/assignmentBack" />
 
     <TextView
         android:id="@+id/assignmentSymbol"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-black"
-        android:text=":="
-        android:textColor="@color/white"
-        android:textSize="30sp"
+        style="@style/blockText"
+        android:text="@string/assignment"
         app:layout_constraintBottom_toBottomOf="@+id/assignmentBack"
         app:layout_constraintEnd_toEndOf="@+id/assignmentBack"
         app:layout_constraintStart_toStartOf="@+id/assignmentBack"

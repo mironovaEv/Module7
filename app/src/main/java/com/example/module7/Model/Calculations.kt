@@ -42,9 +42,6 @@ class Calculations {
                 while (topSymbol != "(") {
                     outputArr.add(topSymbol)
                     topSymbol = stack.pop()
-                    if (stack.isEmpty()) {
-                        //Пропущена скобка!!!
-                    }
                 }
             }
             infixArr.removeAt(0)
@@ -52,9 +49,6 @@ class Calculations {
             if (infixArr.isEmpty() && stack.isNotEmpty()) {
                 while (stack.isNotEmpty()) {
                     val topSymbol = stack.peek()
-                    if (topSymbol == "(") {
-                        //Пропущена скобка!!
-                    }
                     outputArr.add(topSymbol)
                     if (stack.isNotEmpty()) {
                         stack.pop()

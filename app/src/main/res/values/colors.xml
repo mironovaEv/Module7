@@ -20,5 +20,7 @@
     <color name="increment_back">#00BCD4</color>
     <color name="decrement_back">#FFEB3B</color>
     <color name="background">#DBDBDB</color>
+    <color name="input_background">#323131</color>
+    <color name="output_background">#00FFFFFF</color>
 
 </resources>

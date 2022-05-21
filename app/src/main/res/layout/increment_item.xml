@@ -1,64 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:circularflow_radiusInDP="15dp">
 
     <TextView
         android:id="@+id/incrementBack"
-        android:layout_width="0dp"
-        android:layout_height="55dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="8dp"
-        android:background="@drawable/rounded_corner"
+        style="@style/blockBackground"
         android:backgroundTint="@color/increment_back"
-        android:gravity="center"
-        android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.5" />
-
     <TextView
         android:id="@+id/incrementText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-black"
-        android:text="++"
-        android:textColor="@color/white"
-        android:textSize="30dp"
+        style="@style/blockText"
+        android:text="@string/plus_plus"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/incrementBack"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/varNameIncrement"
-        app:layout_constraintTop_toTopOf="@+id/incrementBack"
-        />
+        app:layout_constraintTop_toTopOf="@+id/incrementBack" />
 
     <EditText
         android:id="@+id/varNameIncrement"
-        android:layout_width="170dp"
+        style="@style/blockEdit"
+        android:layout_width="@dimen/oneEditWidth"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:backgroundTint="@color/white"
+        android:layout_marginStart="@dimen/oneEditMarginStart"
         android:ems="10"
-        android:hint="Имя переменной"
-        android:inputType="text"
-        android:textColor="@color/white"
-        android:textSize="15dp"
+        android:hint="@string/variable"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/incrementText"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/incrementBack"
-        app:layout_constraintTop_toTopOf="@+id/incrementBack"  />
+        app:layout_constraintTop_toTopOf="@+id/incrementBack" />
 </androidx.constraintlayout.widget.ConstraintLayout>
