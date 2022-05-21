@@ -84,6 +84,59 @@
         tools:ignore="SpeakableTextPresentCheck"
         tools:visibility="gone" />
 
+    <com.leinardi.android.speeddial.SpeedDialOverlayLayout
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ImageButton
+        android:id="@+id/consoleOpen"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="12dp"
+        android:background="@android:color/transparent"
+        android:scaleType="fitXY"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline4"
+        app:srcCompat="@drawable/ic_console"
+        tools:ignore="SpeakableTextPresentCheck,SpeakableTextPresentCheck,SpeakableTextPresentCheck" />
+
+    <com.leinardi.android.speeddial.SpeedDialView
+        android:id="@+id/buttonAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:theme="@style/Platform.MaterialComponents"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:sdMainFabClosedIconColor="@color/background"
+        app:sdMainFabClosedSrc="@drawable/ic_add_white_24dp"
+        app:sdMainFabOpenedIconColor="@color/background"
+        app:sdOverlayLayout="@id/overlay"
+        tools:ignore="MissingConstraints" />
+
+    <ImageView
+        android:id="@+id/buttonRun"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="12dp"
+        android:elevation="6dp"
+        android:stateListAnimator="@null"
+        android:translationZ="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline3"
+        app:layout_constraintStart_toStartOf="@+id/guideline2"
+        app:layout_constraintTop_toTopOf="@+id/guideline4"
+        app:srcCompat="@drawable/run_button" />
+
     <ScrollView
         android:id="@+id/console"
         android:layout_width="0dp"
@@ -127,59 +180,6 @@
 
         </LinearLayout>
     </ScrollView>
-
-    <com.leinardi.android.speeddial.SpeedDialOverlayLayout
-        android:id="@+id/overlay"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <com.leinardi.android.speeddial.SpeedDialView
-        android:id="@+id/buttonAdd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        app:sdMainFabOpenedIconColor="@color/background"
-        app:sdMainFabClosedIconColor="@color/background"
-        android:theme="@style/Platform.MaterialComponents"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:sdMainFabClosedSrc="@drawable/ic_add_white_24dp"
-        app:sdOverlayLayout="@id/overlay"
-        tools:ignore="MissingConstraints" />
-
-    <ImageButton
-        android:id="@+id/consoleOpen"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginBottom="12dp"
-        android:background="@android:color/transparent"
-        android:scaleType="fitXY"
-
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline4"
-        app:srcCompat="@drawable/ic_console"
-        tools:ignore="SpeakableTextPresentCheck,SpeakableTextPresentCheck,SpeakableTextPresentCheck" />
-
-    <ImageView
-        android:id="@+id/buttonRun"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginBottom="12dp"
-        android:elevation="6dp"
-        android:stateListAnimator="@null"
-        android:translationZ="4dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/guideline3"
-        app:layout_constraintStart_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toTopOf="@+id/guideline4"
-        app:srcCompat="@drawable/run_button" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
