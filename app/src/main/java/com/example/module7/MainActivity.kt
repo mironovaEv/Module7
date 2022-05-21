@@ -118,6 +118,7 @@ class MainActivity : AppCompatActivity() {
             console.visibility = View.VISIBLE
             consoleClose.visibility = View.VISIBLE
             binding.buttonAdd.visibility = View.GONE
+            buttonRun.visibility = View.GONE
             when (expectingInput) {
                 null -> {
                     buttonRestart.visibility = View.GONE
@@ -246,6 +247,7 @@ class MainActivity : AppCompatActivity() {
             buttonResume.visibility = View.GONE
             buttonRestart.visibility = View.GONE
             binding.buttonAdd.visibility = View.VISIBLE
+            buttonRun.visibility = View.VISIBLE
         }
 
         consoleOpen.setOnClickListener {
